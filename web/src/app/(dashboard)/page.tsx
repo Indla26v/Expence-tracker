@@ -19,23 +19,33 @@ export default async function DashboardPage() {
   const month = now.getUTCMonth() + 1;
   const year = now.getUTCFullYear();
 
-  const [todayTotals, monthTotals, budget, recent] = await Promise.all([
-    prisma.expense.aggregate({
-      where: { type: "expense", date: { gte: todayStart, lt: tomorrowStart } },
-      _sum: { amount: true },
-    }),
-    prisma.expense.aggregate({
-      where: { type: "expense", date: { gte: monthStart, lt: nextMonthStart } },
-      _sum: { amount: true },
-    }),
-    prisma.budget.findUnique({
-      where: { month_year: { month, year } },
-    }),
-    prisma.expense.findMany({
-      orderBy: [{ date: "desc" }, { createdAt: "desc" }],
-      take: 10,
-    }),
-  ]);
+  let todayTotals = { _sum: { amount: null } };
+  let monthTotals = { _sum: { amount: null } };
+  let budget = null;
+  let recent = [];
+
+  try {
+    [todayTotals, monthTotals, budget, recent] = await Promise.all([
+      prisma.expense.aggregate({
+        where: { type: "expense", date: { gte: todayStart, lt: tomorrowStart } },
+        _sum: { amount: true },
+      }),
+      prisma.expense.aggregate({
+        where: { type: "expense", date: { gte: monthStart, lt: nextMonthStart } },
+        _sum: { amount: true },
+      }),
+      prisma.budget.findUnique({
+        where: { month_year: { month, year } },
+      }),
+      prisma.expense.findMany({
+        orderBy: [{ date: "desc" }, { createdAt: "desc" }],
+        take: 10,
+      }),
+    ]);
+  } catch (error) {
+    // Database tables may not exist yet
+    console.log('Database not initialized yet, using empty data');
+  }
 
   const todaySpend = todayTotals._sum.amount ?? 0;
   const monthSpend = monthTotals._sum.amount ?? 0;
