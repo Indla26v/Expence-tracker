@@ -1,0 +1,216 @@
+@import "tailwindcss";
+
+:root {
+  --background: linear-gradient(135deg, #0a0a1a 0%, #0f0f2a 50%, #050a15 100%);
+  --foreground: #ffffff;
+  --primary: #1e40af;
+  --primary-dark: #1e3a8a;
+  --accent: #1e40af;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-accent: var(--accent);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  
+  /* Custom animations */
+  --animate-fadeIn: fadeIn 0.5s ease-in-out;
+  --animate-slideUp: slideUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  --animate-slideDown: slideDown 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  --animate-pulse-soft: pulseSoft 2s ease-in-out infinite;
+  --animate-glow: glow 2s ease-in-out infinite;
+  --animate-shimmer: shimmer 2s linear infinite;
+  --animate-bounce-soft: bounceSoft 2s ease-in-out infinite;
+  --animate-scale-in: scaleIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulseSoft {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+@keyframes glow {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(30, 64, 175, 0.3), 0 0 10px rgba(30, 64, 175, 0.1);
+  }
+  50% {
+    box-shadow: 0 0 15px rgba(30, 64, 175, 0.5), 0 0 20px rgba(30, 64, 175, 0.2);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+@keyframes bounceSoft {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Shape animations */
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px) translateX(0px);
+  }
+  25% {
+    transform: translateY(-20px) translateX(10px);
+  }
+  50% {
+    transform: translateY(-40px) translateX(-10px);
+  }
+  75% {
+    transform: translateY(-20px) translateX(-15px);
+  }
+}
+
+@keyframes floatReverse {
+  0%, 100% {
+    transform: translateY(0px) translateX(0px);
+  }
+  25% {
+    transform: translateY(30px) translateX(-15px);
+  }
+  50% {
+    transform: translateY(50px) translateX(20px);
+  }
+  75% {
+    transform: translateY(25px) translateX(10px);
+  }
+}
+
+@keyframes slowRotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes morph {
+  0% {
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+  }
+  50% {
+    border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%;
+  }
+  100% {
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+  }
+}
+
+@keyframes diamondRotate {
+  from {
+    transform: rotate(0deg) scale(1);
+  }
+  50% {
+    transform: rotate(180deg) scale(1.1);
+  }
+  to {
+    transform: rotate(360deg) scale(1);
+  }
+}
+
+.light {
+  --background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 50%, #fffbeb 100%);
+  --foreground: #111827;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+  transition: background-color 0.3s ease;
+}
+
+/* Smooth transitions for all elements */
+* {
+  @apply transition-colors duration-300;
+}
+
+/* Card animations */
+.card-grid > div {
+  animation: slideUp 0.5s ease-out forwards;
+}
+
+.card-grid > div:nth-child(1) {
+  animation-delay: 0.1s;
+}
+
+.card-grid > div:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.card-grid > div:nth-child(3) {
+  animation-delay: 0.3s;
+}

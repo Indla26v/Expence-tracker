@@ -1,0 +1,40 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id       String @id @default(cuid())
+  email    String @unique
+  password String // bcrypt hash
+}
+
+model Expense {
+  id        String   @id @default(cuid())
+  amount    Float
+  type      String // "expense" | "income"
+  category  String
+  note      String?
+  date      DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([date])
+  @@index([type, date])
+  @@index([category, date])
+}
+
+model Budget {
+  id        String   @id @default(cuid())
+  month     Int // 1-12
+  year      Int
+  amount    Float
+  createdAt DateTime @default(now())
+
+  @@unique([month, year])
+  @@index([year, month])
+}
+

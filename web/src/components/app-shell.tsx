@@ -1,0 +1,112 @@
+"use client";
+
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { BarChart3, CreditCard, Home, Moon, Plus, Settings, Sun } from "lucide-react";
+import clsx from "clsx";
+import { useTheme } from "next-themes";
+import { signOut } from "next-auth/react";
+
+const navItems = [
+  { href: "/", label: "Dashboard", icon: Home },
+  { href: "/expenses", label: "Expenses", icon: CreditCard },
+  { href: "/analytics", label: "Analytics", icon: BarChart3 },
+  { href: "/settings", label: "Settings", icon: Settings },
+] as const;
+
+export function AppShell({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+  const { theme, setTheme } = useTheme();
+
+  return (
+    <div className="min-h-dvh bg-background text-foreground relative overflow-hidden">
+      {/* Animated background shapes */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+        {/* Floating circles */}
+        <div className="absolute top-10 left-10 w-64 h-64 bg-blue-600/10 rounded-full blur-3xl animate-[float_12s_ease-in-out_infinite]" />
+        <div className="absolute top-1/2 right-20 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl animate-[floatReverse_14s_ease-in-out_infinite]" />
+        <div className="absolute bottom-20 left-1/3 w-72 h-72 bg-blue-700/10 rounded-full blur-3xl animate-[pulse_15s_ease-in-out_infinite]" />
+        
+        {/* Morphing blobs */}
+        <div className="absolute top-20 right-10 w-52 h-52 bg-blue-600/8 rounded-full blur-2xl animate-[morph_11s_ease-in-out_infinite]" />
+        <div className="absolute bottom-10 right-1/3 w-48 h-48 bg-blue-700/8 rounded-full blur-2xl animate-[morph_13s_ease-in-out_infinite_3s]" />
+      </div>
+      <header className="sticky top-0 z-20 border-b border-white/10 bg-black/60 backdrop-blur">
+        <div className="mx-auto flex w-full max-w-5xl items-center justify-between px-4 py-3">
+          <div className="flex items-center gap-2">
+            <div className="text-sm font-semibold">Expense Tracker</div>
+            <nav className="hidden items-center gap-2 sm:flex">
+              {navItems.map(({ href, label }) => {
+                const active = pathname === href;
+                return (
+                  <Link
+                    key={href}
+                    href={href}
+                    className={clsx(
+                      "rounded-md px-2 py-1 text-sm",
+                      active ? "bg-white/10 text-white" : "text-white/70 hover:bg-white/5"
+                    )}
+                  >
+                    {label}
+                  </Link>
+                );
+              })}
+            </nav>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+              className="inline-flex items-center gap-2 rounded-md border border-white/10 px-2 py-1 text-sm text-white/80 hover:bg-white/10"
+            >
+              {theme === "light" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+              <span className="hidden sm:inline">{theme === "light" ? "Light" : "Dark"}</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => void signOut({ callbackUrl: "/login" })}
+              className="rounded-md border border-white/10 px-2 py-1 text-sm text-white/80 hover:bg-white/10"
+            >
+              Sign out
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <div className="mx-auto w-full max-w-5xl px-4 pb-24 pt-6 sm:pb-8 relative z-10">
+        {children}
+      </div>
+
+      <Link
+        href="/expenses"
+        className="fixed bottom-20 right-4 z-50 inline-flex h-12 w-12 items-center justify-center rounded-full bg-white text-black shadow-lg sm:bottom-6 sm:right-6"
+        aria-label="Quick add"
+      >
+        <Plus className="h-5 w-5" />
+      </Link>
+
+      <nav className="fixed bottom-0 left-0 right-0 z-20 border-t border-white/10 bg-black/70 backdrop-blur sm:hidden">
+        <div className="mx-auto grid max-w-5xl grid-cols-4">
+          {navItems.map(({ href, label, icon: Icon }) => {
+            const active = pathname === href;
+            return (
+              <Link
+                key={href}
+                href={href}
+                className={clsx(
+                  "flex flex-col items-center justify-center gap-1 py-3 text-xs",
+                  active ? "text-white" : "text-white/60"
+                )}
+              >
+                <Icon className="h-5 w-5" />
+                <span>{label}</span>
+              </Link>
+            );
+          })}
+        </div>
+      </nav>
+    </div>
+  );
+}
+
