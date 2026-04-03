@@ -2,9 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BarChart3, CreditCard, Home, Moon, Plus, Settings, Sun } from "lucide-react";
+import { BarChart3, CreditCard, Home, Moon, Plus, Settings } from "lucide-react";
 import clsx from "clsx";
-import { useTheme } from "next-themes";
 import { signOut } from "next-auth/react";
 
 const navItems = [
@@ -16,10 +15,9 @@ const navItems = [
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const { theme, setTheme } = useTheme();
 
   return (
-    <div className="min-h-dvh bg-background text-foreground relative overflow-hidden">
+    <div className="min-h-dvh bg-slate-950 text-white relative overflow-hidden">
       {/* Animated background shapes */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
         {/* Floating circles */}
@@ -31,10 +29,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <div className="absolute top-20 right-10 w-52 h-52 bg-blue-600/8 rounded-full blur-2xl animate-[morph_11s_ease-in-out_infinite]" />
         <div className="absolute bottom-10 right-1/3 w-48 h-48 bg-blue-700/8 rounded-full blur-2xl animate-[morph_13s_ease-in-out_infinite_3s]" />
       </div>
-      <header className="sticky top-0 z-20 border-b border-slate-200 dark:border-white/10 bg-white/80 dark:bg-black/60 backdrop-blur">
+      <header className="sticky top-0 z-20 border-b border-white/10 bg-black/60 backdrop-blur">
         <div className="mx-auto flex w-full max-w-5xl items-center justify-between px-4 py-3">
           <div className="flex items-center gap-2">
-            <div className="text-sm font-semibold text-slate-900 dark:text-white">Expense Tracker</div>
+            <div className="text-sm font-semibold text-white">Expense Tracker</div>
             <nav className="hidden items-center gap-2 sm:flex">
               {navItems.map(({ href, label }) => {
                 const active = pathname === href;
@@ -44,7 +42,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                     href={href}
                     className={clsx(
                       "rounded-md px-2 py-1 text-sm transition-colors",
-                      active ? "bg-slate-200 text-slate-900 dark:bg-white/10 dark:text-white" : "text-slate-600 hover:bg-slate-100 dark:text-white/70 dark:hover:bg-white/5"
+                    active ? "bg-white/10 text-white" : "text-white/70 hover:bg-white/5"
                     )}
                   >
                     {label}
@@ -57,16 +55,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <div className="flex items-center gap-2">
             <button
               type="button"
-              onClick={() => setTheme(theme === "light" ? "dark" : "light")}
-              className="inline-flex items-center gap-2 rounded-md border border-slate-200 dark:border-white/10 px-2 py-1 text-sm text-slate-600 hover:bg-slate-100 dark:text-white/80 dark:hover:bg-white/10 transition-colors"
-            >
-              {theme === "light" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-              <span className="hidden sm:inline">{theme === "light" ? "Light" : "Dark"}</span>
-            </button>
-            <button
-              type="button"
               onClick={() => void signOut({ callbackUrl: "/login" })}
-              className="rounded-md border border-slate-200 dark:border-white/10 px-2 py-1 text-sm text-slate-600 hover:bg-slate-100 dark:text-white/80 dark:hover:bg-white/10 transition-colors"
+              className="rounded-md border border-white/10 px-2 py-1 text-sm text-white/80 hover:bg-white/10 transition-colors"
             >
               Sign out
             </button>
@@ -86,7 +76,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <Plus className="h-5 w-5" />
       </Link>
 
-      <nav className="fixed bottom-0 left-0 right-0 z-20 border-t border-slate-200 dark:border-white/10 bg-white/90 dark:bg-black/70 backdrop-blur sm:hidden">
+      <nav className="fixed bottom-0 left-0 right-0 z-20 border-t border-white/10 bg-black/70 backdrop-blur sm:hidden">
         <div className="mx-auto grid max-w-5xl grid-cols-4">
           {navItems.map(({ href, label, icon: Icon }) => {
             const active = pathname === href;
@@ -96,7 +86,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 href={href}
                 className={clsx(
                   "flex flex-col items-center justify-center gap-1 py-3 text-xs transition-colors",
-                  active ? "text-blue-600 dark:text-white" : "text-slate-500 hover:text-slate-900 dark:text-white/60 dark:hover:text-white"
+                  active ? "text-white" : "text-white/60 hover:text-white"
                 )}
               >
                 <Icon className="h-5 w-5" />

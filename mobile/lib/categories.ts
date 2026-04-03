@@ -1,5 +1,9 @@
 export const CATEGORIES = [
-  "Food",
+  "Breakfast",
+  "Lunch",
+  "Dinner",
+  "Drinks",
+  "Snacks",
   "Transport",
   "Shopping",
   "Bills",
@@ -11,7 +15,11 @@ export const CATEGORIES = [
 export type Category = (typeof CATEGORIES)[number];
 
 export const CATEGORY_COLORS: Record<Category, string> = {
-  Food: "#22c55e",
+  Breakfast: "#22c55e",
+  Lunch: "#84cc16",
+  Dinner: "#10b981",
+  Drinks: "#14b8a6",
+  Snacks: "#84cc16",
   Transport: "#3b82f6",
   Shopping: "#a855f7",
   Bills: "#f97316",

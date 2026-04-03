@@ -123,11 +123,11 @@ export default function AnalyticsPage() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-2">
-        <h1 className="bg-gradient-to-r from-blue-600 via-purple-500 to-indigo-600 bg-clip-text text-3xl font-bold text-transparent animate-[slideDown_0.6s_cubic-bezier(0.34,1.56,0.64,1)]">Analytics</h1>
-        <p className="text-sm text-slate-500 dark:text-blue-300/70">Daily, monthly, and yearly reports</p>
+        <h1 className="bg-gradient-to-r from-blue-400 via-purple-400 to-indigo-400 bg-clip-text text-3xl font-bold text-transparent animate-[slideDown_0.6s_cubic-bezier(0.34,1.56,0.64,1)]">Analytics</h1>
+        <p className="text-sm text-blue-300/70">Daily, monthly, and yearly reports</p>
       </div>
 
-      <div className="grid gap-4 rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-blue-600/30 dark:bg-gradient-to-br dark:from-blue-600/10 dark:via-blue-700/5 dark:to-transparent p-6 sm:grid-cols-4 animate-[slideUp_0.6s_cubic-bezier(0.34,1.56,0.64,1)_0.1s_backwards]">
+      <div className="grid gap-4 rounded-2xl border border-blue-600/30 bg-gradient-to-br from-blue-600/10 via-blue-700/5 to-transparent p-6 sm:grid-cols-4 animate-[slideUp_0.6s_cubic-bezier(0.34,1.56,0.64,1)_0.1s_backwards]">
         <div className="sm:col-span-4 flex flex-wrap items-center gap-2 mb-2">
           {(
             [
@@ -145,8 +145,8 @@ export default function AnalyticsPage() {
               }}
               className={`rounded-lg border px-4 py-2 text-sm font-medium transition-all duration-300 ${
                 view === id
-                  ? "border-blue-500 bg-blue-500 text-white shadow-md shadow-blue-500/20"
-                  : "border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:border-white/10 dark:text-white/70 dark:hover:bg-white/5 dark:hover:text-white"
+                  ? "border-blue-400/60 bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-md shadow-blue-600/30"
+                  : "border-white/10 text-white/70 hover:bg-white/5 hover:text-white"
               }`}
             >
               {label}
@@ -156,7 +156,7 @@ export default function AnalyticsPage() {
 
         {view === "monthly" ? (
           <div className="sm:col-span-1">
-          <label className="text-xs font-medium text-slate-500 dark:text-blue-300">Month</label>
+          <label className="text-xs font-medium text-blue-300">Month</label>
           <select
             value={month}
             onChange={(e) => {
@@ -164,7 +164,7 @@ export default function AnalyticsPage() {
               setError(null);
               setMonth(Number(e.target.value));
             }}
-            className="mt-1.5 w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-white/10 dark:bg-black/20 dark:text-white"
+            className="mt-1.5 w-full rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm text-white focus:border-blue-400/60 focus:outline-none focus:ring-1 focus:ring-blue-400/30"
           >
             {[
               "January", "February", "March", "April", "May", "June",
@@ -177,7 +177,7 @@ export default function AnalyticsPage() {
         ) : null}
 
         <div className="sm:col-span-1">
-          <label className="text-xs font-medium text-slate-500 dark:text-blue-300">Year</label>
+          <label className="text-xs font-medium text-blue-300">Year</label>
           <input
             type="number"
             min={1970}
@@ -188,13 +188,13 @@ export default function AnalyticsPage() {
               setError(null);
               setYear(Number(e.target.value));
             }}
-            className="mt-1.5 w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-white/10 dark:bg-black/20 dark:text-white"
+            className="mt-1.5 w-full rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm text-white focus:border-blue-400/60 focus:outline-none focus:ring-1 focus:ring-blue-400/30"
           />
         </div>
 
         {view === "daily" ? (
           <div className="sm:col-span-2">
-            <label className="text-xs font-medium text-slate-500 dark:text-blue-300">Date</label>
+            <label className="text-xs font-medium text-blue-300">Date</label>
             <input
               type="date"
               value={date}
@@ -203,15 +203,15 @@ export default function AnalyticsPage() {
                 setError(null);
                 setDate(e.target.value);
               }}
-              className="mt-1.5 w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-white/10 dark:bg-black/20 dark:text-white"
+              className="mt-1.5 w-full rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm text-white focus:border-blue-400/60 focus:outline-none focus:ring-1 focus:ring-blue-400/30"
             />
           </div>
         ) : null}
 
         <div className="sm:col-span-4 mt-2 grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <div className="rounded-xl border border-emerald-200 bg-emerald-50 dark:border-emerald-500/30 dark:bg-emerald-500/10 p-4 transition-all duration-300 hover:shadow-md hover:border-emerald-300 dark:hover:border-emerald-400">
-            <div className="text-sm font-medium text-emerald-600 dark:text-emerald-400">Income</div>
-            <div className="mt-1 text-2xl font-bold text-emerald-700 dark:text-emerald-300">
+          <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-4 transition-all duration-300 hover:shadow-md hover:border-emerald-400">
+            <div className="text-sm font-medium text-emerald-400">Income</div>
+            <div className="mt-1 text-2xl font-bold text-emerald-300">
               ₹ 
               {(
                 view === "monthly"
@@ -222,9 +222,9 @@ export default function AnalyticsPage() {
               )?.toFixed(2) ?? "---"}
             </div>
           </div>
-          <div className="rounded-xl border border-red-200 bg-red-50 dark:border-red-500/30 dark:bg-red-500/10 p-4 transition-all duration-300 hover:shadow-md hover:border-red-300 dark:hover:border-red-400">
-            <div className="text-sm font-medium text-red-600 dark:text-red-400">Expense</div>
-            <div className="mt-1 text-2xl font-bold text-red-700 dark:text-red-300">
+          <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-4 transition-all duration-300 hover:shadow-md hover:border-red-400">
+            <div className="text-sm font-medium text-red-400">Expense</div>
+            <div className="mt-1 text-2xl font-bold text-red-300">
               ₹ 
               {(
                 view === "monthly"
@@ -235,9 +235,9 @@ export default function AnalyticsPage() {
               )?.toFixed(2) ?? "---"}
             </div>
           </div>
-          <div className="rounded-xl border border-blue-200 bg-blue-50 dark:border-blue-500/30 dark:bg-blue-500/10 p-4 transition-all duration-300 hover:shadow-md hover:border-blue-300 dark:hover:border-blue-400">
-            <div className="text-sm font-medium text-blue-600 dark:text-blue-400">Net</div>
-            <div className="mt-1 text-2xl font-bold text-blue-700 dark:text-blue-300">
+          <div className="rounded-xl border border-blue-500/30 bg-blue-500/10 p-4 transition-all duration-300 hover:shadow-md hover:border-blue-400">
+            <div className="text-sm font-medium text-blue-400">Net</div>
+            <div className="mt-1 text-2xl font-bold text-blue-300">
               ₹ 
               {(
                 view === "monthly"
@@ -252,29 +252,29 @@ export default function AnalyticsPage() {
       </div>
 
       {error ? (
-        <div className="rounded-lg border border-red-500/30 bg-red-50 dark:bg-red-500/10 px-4 py-3 text-sm text-red-600 dark:text-red-200 animate-in fade-in zoom-in duration-300">
+        <div className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200 animate-in fade-in zoom-in duration-300">
           {error}
         </div>
       ) : null}
 
       <div className="grid gap-6 sm:grid-cols-2 animate-[slideUp_0.6s_cubic-bezier(0.34,1.56,0.64,1)_0.2s_backwards]">
-        <div className="rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-white/10 dark:bg-black/20 p-5 transition-all duration-300 hover:shadow-md">
-          <div className="text-sm font-semibold text-slate-800 dark:text-white">
+        <div className="rounded-2xl border border-white/10 bg-black/20 p-5 transition-all duration-300 hover:shadow-md">
+          <div className="text-sm font-semibold text-white">
             {view === "daily" ? "Today by hour" : "Spending by category"}
           </div>
           <div className="mt-6 h-[300px]">
             {loading ? (
-              <div className="h-full grid place-items-center text-sm text-slate-500 dark:text-white/70">Loading...</div>
+              <div className="h-full grid place-items-center text-sm text-white/70">Loading...</div>
             ) : view === "daily" ? (
               hourBars.length === 0 ? (
-                <div className="h-full grid place-items-center text-sm text-slate-500 dark:text-white/70">
+                <div className="h-full grid place-items-center text-sm text-white/70">
                   No data.
                 </div>
               ) : (
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={hourBars} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                    <XAxis dataKey="hour" stroke="currentColor" className="text-slate-400 dark:text-slate-500" fontSize={12} tickLine={false} axisLine={false} />
-                    <YAxis stroke="currentColor" className="text-slate-400 dark:text-slate-500" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(val) => `₹${val}`} />
+                    <XAxis dataKey="hour" stroke="currentColor" className="text-slate-500" fontSize={12} tickLine={false} axisLine={false} />
+                    <YAxis stroke="currentColor" className="text-slate-500" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(val) => `₹${val}`} />
                     <Tooltip
                       cursor={{ fill: 'rgba(59, 130, 246, 0.1)' }}
                       contentStyle={{
@@ -291,7 +291,7 @@ export default function AnalyticsPage() {
                 </ResponsiveContainer>
               )
             ) : pieData.length === 0 ? (
-              <div className="h-full grid place-items-center text-sm text-slate-500 dark:text-white/70">
+              <div className="h-full grid place-items-center text-sm text-white/70">
                 No data.
               </div>
             ) : (
@@ -308,7 +308,7 @@ export default function AnalyticsPage() {
                     paddingAngle={2}
                   >
                     {pieData.map((entry) => (
-                      <Cell key={entry.name} fill={entry.color} className="stroke-white dark:stroke-slate-900 stroke-2" />
+                      <Cell key={entry.name} fill={entry.color} className="stroke-slate-900 stroke-2" />
                     ))}
                   </Pie>
                   <Tooltip
@@ -327,23 +327,23 @@ export default function AnalyticsPage() {
           </div>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-white/10 dark:bg-black/20 p-5 transition-all duration-300 hover:shadow-md">
-          <div className="text-sm font-semibold text-slate-800 dark:text-white">
+        <div className="rounded-2xl border border-white/10 bg-black/20 p-5 transition-all duration-300 hover:shadow-md">
+          <div className="text-sm font-semibold text-white">
             {view === "yearly" ? "Month-by-month" : "Day-by-day"}
           </div>
           <div className="mt-6 h-[300px]">
             {loading ? (
-              <div className="h-full grid place-items-center text-sm text-slate-500 dark:text-white/70">Loading...</div>
+              <div className="h-full grid place-items-center text-sm text-white/70">Loading...</div>
             ) : view === "yearly" ? (
               monthBars.length === 0 ? (
-                <div className="h-full grid place-items-center text-sm text-slate-500 dark:text-white/70">
+                <div className="h-full grid place-items-center text-sm text-white/70">
                   No data.
                 </div>
               ) : (
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={monthBars} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                    <XAxis dataKey="month" stroke="currentColor" className="text-slate-400 dark:text-slate-500" fontSize={12} tickLine={false} axisLine={false} />
-                    <YAxis stroke="currentColor" className="text-slate-400 dark:text-slate-500" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(val) => `₹${val}`} />
+                    <XAxis dataKey="month" stroke="currentColor" className="text-slate-500" fontSize={12} tickLine={false} axisLine={false} />
+                    <YAxis stroke="currentColor" className="text-slate-500" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(val) => `₹${val}`} />
                     <Tooltip
                       cursor={{ fill: 'rgba(139, 92, 246, 0.1)' }}
                       contentStyle={{
@@ -360,14 +360,14 @@ export default function AnalyticsPage() {
                 </ResponsiveContainer>
               )
             ) : lineData.length === 0 ? (
-              <div className="h-full grid place-items-center text-sm text-slate-500 dark:text-white/70">
+              <div className="h-full grid place-items-center text-sm text-white/70">
                 No data.
               </div>
             ) : (
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={lineData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                  <XAxis dataKey="day" stroke="currentColor" className="text-slate-400 dark:text-slate-500" fontSize={12} tickLine={false} axisLine={false} />
-                  <YAxis stroke="currentColor" className="text-slate-400 dark:text-slate-500" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(val) => `₹${val}`} />
+                  <XAxis dataKey="day" stroke="currentColor" className="text-slate-500" fontSize={12} tickLine={false} axisLine={false} />
+                  <YAxis stroke="currentColor" className="text-slate-500" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(val) => `₹${val}`} />
                   <Tooltip
                     contentStyle={{
                       background: "rgba(15, 23, 42, 0.9)",

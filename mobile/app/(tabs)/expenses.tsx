@@ -28,15 +28,15 @@ export default function ExpensesScreen() {
 
   const [amount, setAmount] = useState("");
   const [type, setType] = useState<Expense["type"]>("expense");
-  const [category, setCategory] = useState<Category>("Food");
-  const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
+  const [category, setCategory] = useState<Category>("Lunch");
+  const [date, setDate] = useState(() => new Date());
   const [note, setNote] = useState("");
   const [saving, setSaving] = useState(false);
 
   const [editing, setEditing] = useState<Expense | null>(null);
   const [editAmount, setEditAmount] = useState("");
   const [editType, setEditType] = useState<Expense["type"]>("expense");
-  const [editCategory, setEditCategory] = useState<Category>("Food");
+  const [editCategory, setEditCategory] = useState<Category>("Lunch");
   const [editDate, setEditDate] = useState(() => new Date().toISOString().slice(0, 10));
   const [editNote, setEditNote] = useState("");
   const [editSaving, setEditSaving] = useState(false);
