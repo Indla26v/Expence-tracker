@@ -36,7 +36,7 @@ export default function SettingsPage() {
     let cancelled = false;
     setLoading(true);
     setError(null);
-    fetch(/api/budget?${qs})
+    fetch(`/api/budget?${qs}`)
       .then(async (res) => {
         if (!res.ok) throw new Error("Failed to load budget");
         return (await res.json()) as { budget: Budget | null };
@@ -165,7 +165,7 @@ export default function SettingsPage() {
             disabled={savingBalance || loadingSettings}
             className="rounded-md bg-blue-600 hover:bg-blue-700 dark:bg-white px-3 py-2 text-sm font-medium text-white dark:text-black disabled:opacity-60 transition-colors"
           >
-            {savingBalance ? "Saving…" : "Save Base Amount"}
+            {savingBalance ? "Saving..." : "Save Base Amount"}
           </button>
         </div>
       </div>
@@ -210,10 +210,10 @@ export default function SettingsPage() {
         </div>
 
         {loading ? (
-          <div className="mt-4 text-sm text-slate-500 dark:text-white/70">Loading…</div>
+          <div className="mt-4 text-sm text-slate-500 dark:text-white/70">Loading...</div>
         ) : current ? (
           <div className="mt-4 text-sm text-slate-500 dark:text-white/70">
-            Current budget: <span className="font-semibold text-slate-900 dark:text-white">?{current.amount.toFixed(2)}</span>
+            Current budget: <span className="font-semibold text-slate-900 dark:text-white">â‚¹{current.amount.toFixed(2)}</span>
           </div>
         ) : (
           <div className="mt-4 text-sm text-slate-500 dark:text-white/70">No budget set.</div>
@@ -231,7 +231,7 @@ export default function SettingsPage() {
             disabled={saving || !amount}
             className="rounded-md bg-blue-600 hover:bg-blue-700 dark:bg-white px-3 py-2 text-sm font-medium text-white dark:text-black disabled:opacity-60 transition-colors"
           >
-            {saving ? "Saving…" : "Save Budget"}
+            {saving ? "Saving..." : "Save Budget"}
           </button>
         </div>
       </div>
