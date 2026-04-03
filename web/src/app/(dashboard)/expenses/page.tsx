@@ -213,13 +213,13 @@ export default function ExpensesPage() {
         </div>
         <button
           onClick={exportCsv}
-          className="rounded-lg border border-blue-200 dark:border-blue-600/30 bg-white dark:bg-slate-900 dark:bg-gradient-to- dark:from-blue-600/10 dark:to-transparent px-4 py-2 text-sm font-medium text-blue-600 dark:text-blue-300 hover:border-blue-300 dark:hover:border-blue-400/60 hover:bg-slate-50 dark:hover:bg-blue-600/20 transition-all duration-300 hover:shadow-md dark:hover:shadow-lg dark:hover:shadow-blue-600/20"
+          className="rounded-lg border border-blue-400 bg-gradient-to-r from-blue-100 to-cyan-100 dark:bg-slate-950 dark:border-blue-500/50 px-4 py-2 text-sm font-medium text-blue-700 dark:text-blue-300 hover:border-blue-500 dark:hover:border-blue-400/60 hover:shadow-md dark:hover:shadow-lg dark:hover:shadow-blue-600/20 transition-all duration-300"
         >
           Export CSV
         </button>
       </div>
 
-      <div className="grid gap-4 rounded-2xl border border-blue-200 dark:border-blue-600/30 bg-white dark:bg-slate-900 dark:bg-gradient-to- dark:from-blue-600/10 dark:to-transparent p-6 sm:grid-cols-5 backdrop-blur-sm">
+      <div className="grid gap-4 rounded-2xl border border-blue-400 bg-gradient-to-br from-blue-50 to-cyan-50 dark:bg-slate-950 dark:border-blue-500/50 p-6 sm:grid-cols-5 shadow-md dark:shadow-lg dark:shadow-blue-900/30">
         <div className="sm:col-span-5">
           <div className="flex flex-wrap items-center gap-2">
             {(
@@ -235,7 +235,7 @@ export default function ExpensesPage() {
                 onClick={() => setRangePreset(id)}
                 className={`rounded-lg border px-3 py-1.5 text-xs font-medium transition-all duration-300 ${
                   rangePreset === id
-                    ? "border-blue-500 dark:border-blue-400/60 bg-gradient-to-r from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700 text-white shadow-md dark:shadow-translate-y-1 shadow-blue-500/20 dark:shadow-blue-600/30"
+                    ? "border-blue-500 dark:border-blue-400/60 bg-gradient-to-r from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700 text-white shadow-md shadow-blue-500/20 dark:shadow-blue-600/30"
                     : "border-slate-200 dark:border-blue-600/30 text-slate-600 dark:text-blue-300 hover:border-slate-300 dark:hover:border-blue-400/60 hover:bg-slate-50 dark:hover:bg-blue-600/20"
                 }`}
               >
@@ -253,7 +253,7 @@ export default function ExpensesPage() {
             max={12}
             value={month}
             onChange={(e) => setMonth(Number(e.target.value))}
-            className="mt-1 w-full rounded-lg border border-slate-200 dark:border-blue-600/30 bg-white dark:bg-slate-800/50 px-3 py-2 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-white/40 focus:border-blue-500 dark:focus:border-blue-400/60 focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-blue-400/30 outline-none transition-all disabled:opacity-50"
+                  className="mt-1 w-full rounded-lg border border-blue-300 bg-white dark:bg-slate-800/50 px-3 py-2 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-white/40 focus:border-blue-500 dark:focus:border-blue-400/60 focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-blue-400/30 outline-none transition-all disabled:opacity-50"
             disabled={rangePreset !== "month"}
           />
         </div>
@@ -302,7 +302,7 @@ export default function ExpensesPage() {
         ) : null}
       </div>
 
-      <div className="rounded-2xl border border-slate-200 dark:border-blue-600/30 bg-white dark:bg-slate-900 dark:bg-gradient-to- dark:from-blue-600/10 dark:to-transparent p-6 shadow-sm dark:shadow-md backdrop-blur-sm animate-[slideUp_0.6s_cubic-bezier(0.34,1.56,0.64,1)_0.1s_backwards]">
+      <div className="rounded-2xl border border-purple-300 bg-gradient-to-br from-purple-50 to-pink-50 dark:bg-slate-950 dark:border-purple-500/50 p-6 shadow-md dark:shadow-lg dark:shadow-purple-900/30 backdrop-blur-sm animate-[slideUp_0.6s_cubic-bezier(0.34,1.56,0.64,1)_0.1s_backwards]">
         <h2 className="text-sm font-semibold text-blue-800 dark:bg-gradient-to-r dark:from-blue-300 dark:to-blue-400 dark:bg-clip-text dark:text-transparent mb-4">Add New Transaction</h2>
         <div className="grid gap-3 sm:grid-cols-6">
           <div className="sm:col-span-1">
@@ -381,7 +381,7 @@ export default function ExpensesPage() {
         </div>
       </div>
 
-      <div className="rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900 dark:bg-gradient-to- dark:from-white/5 dark:to-transparent shadow-sm dark:shadow-lg backdrop-blur-sm overflow-hidden animate-[slideUp_0.6s_cubic-bezier(0.34,1.56,0.64,1)_0.2s_backwards]">
+      <div className="rounded-2xl border border-slate-300 bg-gradient-to-b from-white to-slate-50 dark:bg-slate-950 dark:border-white/10 shadow-md dark:shadow-lg backdrop-blur-sm overflow-hidden animate-[slideUp_0.6s_cubic-bezier(0.34,1.56,0.64,1)_0.2s_backwards]">
         <div className="flex items-center justify-between px-6 py-4 bg-slate-50 dark:bg-gradient-to-r dark:from-blue-600/10 dark:to-transparent border-b border-slate-200 dark:border-white/10">
           <h2 className="text-sm font-semibold text-blue-800 dark:bg-gradient-to-r dark:from-blue-300 dark:to-blue-400 dark:bg-clip-text dark:text-transparent">Transactions</h2>
         </div>
@@ -438,7 +438,7 @@ export default function ExpensesPage() {
 
       {editing ? (
         <div className="fixed inset-0 z-50 grid place-items-center bg-slate-900/40 dark:bg-black/60 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-lg rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900 p-4 shadow-xl">
+          <div className="w-full max-w-lg rounded-xl border border-slate-300 bg-gradient-to-b from-white to-slate-50 dark:bg-slate-900 p-4 shadow-xl dark:shadow-2xl">
             <div className="flex items-center justify-between border-b border-slate-100 dark:border-white/10 pb-3 mb-4">
               <div className="text-sm font-semibold text-slate-900 dark:text-white">Edit transaction</div>
               <button

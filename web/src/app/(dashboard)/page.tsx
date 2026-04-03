@@ -103,37 +103,37 @@ export default async function DashboardPage() {
       </div>
 
       <div className="card-grid grid gap-4 sm:grid-cols-4">
-        <div className="group rounded-2xl border border-blue-200 bg-white dark:bg-slate-950 dark:border-blue-600/30 dark:bg-gradient-to-br dark:from-blue-600/10 dark:via-blue-700/5 dark:to-transparent p-6 shadow-sm dark:shadow-lg dark:shadow-blue-600/10 transition-all duration-300 hover:border-blue-300 dark:hover:border-blue-500/60 hover:shadow-md dark:hover:shadow-xl dark:hover:shadow-blue-600/30">
-          <div className="text-sm font-medium text-slate-500 dark:text-blue-300">Total Money</div>
-          <div className={`mt-3 text-3xl font-bold transition-colors ${totalBalance >= 0 ? "text-emerald-500 group-hover:text-emerald-600 dark:text-emerald-400 dark:group-hover:text-emerald-300" : "text-red-500 group-hover:text-red-600 dark:text-red-400 dark:group-hover:text-red-300"}`}>
+        <div className="group rounded-2xl border border-blue-400 bg-gradient-to-br from-blue-50 to-cyan-50 dark:bg-slate-950 dark:border-blue-500/50 p-6 shadow-md dark:shadow-lg dark:shadow-blue-900/50 transition-all duration-300 hover:border-blue-500 dark:hover:border-blue-400/70 hover:shadow-lg dark:hover:shadow-xl dark:hover:shadow-blue-800/50">
+          <div className="text-sm font-medium text-slate-600 dark:text-blue-300">Total Money</div>
+          <div className={`mt-3 text-3xl font-bold transition-colors ${totalBalance >= 0 ? "text-emerald-600 group-hover:text-emerald-700 dark:text-emerald-400 dark:group-hover:text-emerald-300" : "text-red-600 group-hover:text-red-700 dark:text-red-400 dark:group-hover:text-red-300"}`}>
             ₹{totalBalance.toFixed(2)}
           </div>
           <div className={`mt-2 h-1 w-12 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${totalBalance >= 0 ? "bg-gradient-to-r from-emerald-400 to-emerald-500 dark:from-emerald-400 dark:to-emerald-600" : "bg-gradient-to-r from-red-400 to-red-500 dark:from-red-400 dark:to-red-600"}`} />
         </div>
 
-        <div className="group rounded-2xl border border-blue-200 bg-white dark:bg-slate-950 dark:border-blue-600/30 dark:bg-gradient-to-br dark:from-blue-600/10 dark:via-blue-700/5 dark:to-transparent p-6 shadow-sm dark:shadow-lg dark:shadow-blue-600/10 transition-all duration-300 hover:border-blue-300 dark:hover:border-blue-500/60 hover:shadow-md dark:hover:shadow-xl dark:hover:shadow-blue-600/30">
-          <div className="text-sm font-medium text-slate-500 dark:text-blue-300">Today's spend</div>
-          <div className="mt-3 text-3xl font-bold text-slate-800 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-100 transition-colors">₹{todaySpend.toFixed(2)}</div>
-          <div className="mt-2 h-1 w-12 bg-gradient-to-r from-blue-500 to-blue-600 dark:from-blue-400 dark:to-blue-600 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        <div className="group rounded-2xl border border-purple-400 bg-gradient-to-br from-purple-50 to-pink-50 dark:bg-slate-950 dark:border-purple-500/50 p-6 shadow-md dark:shadow-lg dark:shadow-purple-900/50 transition-all duration-300 hover:border-purple-500 dark:hover:border-purple-400/70 hover:shadow-lg dark:hover:shadow-xl dark:hover:shadow-purple-800/50">
+          <div className="text-sm font-medium text-slate-600 dark:text-purple-300">Today's spend</div>
+          <div className="mt-3 text-3xl font-bold text-purple-700 dark:text-white group-hover:text-purple-800 dark:group-hover:text-blue-100 transition-colors">₹{todaySpend.toFixed(2)}</div>
+          <div className="mt-2 h-1 w-12 bg-gradient-to-r from-purple-500 to-purple-600 dark:from-purple-400 dark:to-purple-600 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
         </div>
 
-        <div className="group rounded-2xl border border-blue-200 bg-white dark:bg-slate-950 dark:border-blue-500/30 dark:bg-gradient-to-br dark:from-blue-500/10 dark:via-blue-600/5 dark:to-transparent p-6 shadow-sm dark:shadow-lg dark:shadow-blue-500/10 transition-all duration-300 hover:border-blue-300 dark:hover:border-blue-400/60 hover:shadow-md dark:hover:shadow-xl dark:hover:shadow-blue-500/30">
-          <div className="text-sm font-medium text-slate-500 dark:text-blue-300">This month</div>
-          <div className="mt-3 text-3xl font-bold text-slate-800 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-100 transition-colors">₹{monthSpend.toFixed(2)}</div>
-          <div className="mt-2 h-1 w-12 bg-gradient-to-r from-blue-500 to-blue-600 dark:from-blue-500 dark:to-blue-700 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        <div className="group rounded-2xl border border-indigo-400 bg-gradient-to-br from-indigo-50 to-blue-50 dark:bg-slate-950 dark:border-indigo-500/50 p-6 shadow-md dark:shadow-lg dark:shadow-indigo-900/50 transition-all duration-300 hover:border-indigo-500 dark:hover:border-indigo-400/70 hover:shadow-lg dark:hover:shadow-xl dark:hover:shadow-indigo-800/50">
+          <div className="text-sm font-medium text-slate-600 dark:text-indigo-300">This month</div>
+          <div className="mt-3 text-3xl font-bold text-indigo-700 dark:text-white group-hover:text-indigo-800 dark:group-hover:text-blue-100 transition-colors">₹{monthSpend.toFixed(2)}</div>
+          <div className="mt-2 h-1 w-12 bg-gradient-to-r from-indigo-500 to-indigo-600 dark:from-indigo-400 dark:to-indigo-600 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
         </div>
 
-        <div className="group rounded-2xl border border-blue-200 bg-white dark:bg-slate-950 dark:border-blue-700/30 dark:bg-gradient-to-br dark:from-blue-700/10 dark:via-blue-600/5 dark:to-transparent p-6 shadow-sm dark:shadow-lg dark:shadow-blue-700/10 transition-all duration-300 hover:border-blue-300 dark:hover:border-blue-600/60 hover:shadow-md dark:hover:shadow-xl dark:hover:shadow-blue-700/30">
+        <div className="group rounded-2xl border border-emerald-400 bg-gradient-to-br from-emerald-50 to-teal-50 dark:bg-slate-950 dark:border-emerald-500/50 p-6 shadow-md dark:shadow-lg dark:shadow-emerald-900/50 transition-all duration-300 hover:border-emerald-500 dark:hover:border-emerald-400/70 hover:shadow-lg dark:hover:shadow-xl dark:hover:shadow-emerald-800/50">
           <div className="flex items-center justify-between">
-            <div className="text-sm font-medium text-slate-500 dark:text-blue-300">Budget</div>
-            <Link href="/settings" className="text-xs text-blue-600 hover:text-blue-700 dark:text-blue-300/70 dark:hover:text-blue-200 underline transition-colors">
+            <div className="text-sm font-medium text-slate-600 dark:text-emerald-300">Budget</div>
+            <Link href="/settings" className="text-xs text-emerald-600 hover:text-emerald-700 dark:text-emerald-400/70 dark:hover:text-emerald-300 underline transition-colors">
               Set
             </Link>
           </div>
           <div className={`mt-3 text-3xl font-bold ${budgetColor} group-hover:scale-105 transition-transform`}>
             ₹{budgetAmount > 0 ? budgetRemaining.toFixed(2) : "0.00"}
           </div>
-          <div className="mt-4 h-2 w-full overflow-hidden rounded-full bg-slate-100 border-slate-200 dark:bg-white/5 border dark:border-white/10">
+          <div className="mt-4 h-2 w-full overflow-hidden rounded-full bg-emerald-100 border-emerald-200 dark:bg-white/5 border dark:border-white/10">
             <div
               className={`h-full rounded-full shadow-sm dark:shadow-lg transition-all duration-500 ${budgetBarColor}`}
               style={{ width: `${Math.min(budgetPct, 1) * 100}%` }}
@@ -147,9 +147,9 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      <div className="rounded-2xl border border-slate-200 bg-white dark:bg-slate-950 dark:border-white/10 dark:bg-gradient-to-br dark:from-white/5 dark:to-transparent shadow-sm dark:shadow-lg overflow-hidden animate-[slideUp_0.6s_cubic-bezier(0.34,1.56,0.64,1)_0.2s_backwards]">
-        <div className="flex items-center justify-between px-6 py-4 bg-slate-50 dark:bg-gradient-to-r dark:from-blue-600/10 dark:to-blue-700/10 border-b border-slate-200 dark:border-white/10">
-          <h2 className="text-sm font-semibold text-blue-800 dark:bg-gradient-to-r dark:from-blue-300 dark:to-blue-400 dark:bg-clip-text dark:text-transparent">Recent transactions</h2>
+      <div className="rounded-2xl border border-slate-300 bg-gradient-to-b from-white to-slate-50 dark:bg-slate-950 dark:border-white/10 shadow-md dark:shadow-lg overflow-hidden animate-[slideUp_0.6s_cubic-bezier(0.34,1.56,0.64,1)_0.2s_backwards]">
+        <div className="flex items-center justify-between px-6 py-4 bg-blue-50 dark:bg-gradient-to-r dark:from-slate-800 dark:to-slate-900 border-b border-blue-200 dark:border-white/10">
+          <h2 className="text-sm font-semibold text-blue-900 dark:bg-gradient-to-r dark:from-blue-300 dark:to-blue-400 dark:bg-clip-text dark:text-transparent">Recent transactions</h2>
           <Link href="/expenses" className="text-xs text-blue-600 hover:text-blue-700 dark:text-blue-300 dark:hover:text-blue-400 underline transition-colors">
             View all
           </Link>
