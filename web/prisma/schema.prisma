@@ -7,9 +7,10 @@ datasource db {
 }
 
 model User {
-  id       String @id @default(cuid())
-  email    String @unique
-  password String // bcrypt hash
+  id             String @id @default(cuid())
+  email          String @unique
+  password       String // bcrypt hash
+  initialBalance Float  @default(0)
 }
 
 model Expense {

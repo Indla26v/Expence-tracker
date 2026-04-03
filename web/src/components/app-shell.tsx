@@ -31,10 +31,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <div className="absolute top-20 right-10 w-52 h-52 bg-blue-600/8 rounded-full blur-2xl animate-[morph_11s_ease-in-out_infinite]" />
         <div className="absolute bottom-10 right-1/3 w-48 h-48 bg-blue-700/8 rounded-full blur-2xl animate-[morph_13s_ease-in-out_infinite_3s]" />
       </div>
-      <header className="sticky top-0 z-20 border-b border-white/10 bg-black/60 backdrop-blur">
+      <header className="sticky top-0 z-20 border-b border-slate-200 dark:border-white/10 bg-white/80 dark:bg-black/60 backdrop-blur">
         <div className="mx-auto flex w-full max-w-5xl items-center justify-between px-4 py-3">
           <div className="flex items-center gap-2">
-            <div className="text-sm font-semibold">Expense Tracker</div>
+            <div className="text-sm font-semibold text-slate-900 dark:text-white">Expense Tracker</div>
             <nav className="hidden items-center gap-2 sm:flex">
               {navItems.map(({ href, label }) => {
                 const active = pathname === href;
@@ -43,8 +43,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                     key={href}
                     href={href}
                     className={clsx(
-                      "rounded-md px-2 py-1 text-sm",
-                      active ? "bg-white/10 text-white" : "text-white/70 hover:bg-white/5"
+                      "rounded-md px-2 py-1 text-sm transition-colors",
+                      active ? "bg-slate-200 text-slate-900 dark:bg-white/10 dark:text-white" : "text-slate-600 hover:bg-slate-100 dark:text-white/70 dark:hover:bg-white/5"
                     )}
                   >
                     {label}
@@ -58,7 +58,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <button
               type="button"
               onClick={() => setTheme(theme === "light" ? "dark" : "light")}
-              className="inline-flex items-center gap-2 rounded-md border border-white/10 px-2 py-1 text-sm text-white/80 hover:bg-white/10"
+              className="inline-flex items-center gap-2 rounded-md border border-slate-200 dark:border-white/10 px-2 py-1 text-sm text-slate-600 hover:bg-slate-100 dark:text-white/80 dark:hover:bg-white/10 transition-colors"
             >
               {theme === "light" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
               <span className="hidden sm:inline">{theme === "light" ? "Light" : "Dark"}</span>
@@ -66,7 +66,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <button
               type="button"
               onClick={() => void signOut({ callbackUrl: "/login" })}
-              className="rounded-md border border-white/10 px-2 py-1 text-sm text-white/80 hover:bg-white/10"
+              className="rounded-md border border-slate-200 dark:border-white/10 px-2 py-1 text-sm text-slate-600 hover:bg-slate-100 dark:text-white/80 dark:hover:bg-white/10 transition-colors"
             >
               Sign out
             </button>
@@ -80,13 +80,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       <Link
         href="/expenses"
-        className="fixed bottom-20 right-4 z-50 inline-flex h-12 w-12 items-center justify-center rounded-full bg-white text-black shadow-lg sm:bottom-6 sm:right-6"
+        className="fixed bottom-20 right-4 z-50 inline-flex h-12 w-12 items-center justify-center rounded-full bg-blue-600 text-white dark:bg-white dark:text-black shadow-lg sm:bottom-6 sm:right-6 transition-transform hover:scale-105"
         aria-label="Quick add"
       >
         <Plus className="h-5 w-5" />
       </Link>
 
-      <nav className="fixed bottom-0 left-0 right-0 z-20 border-t border-white/10 bg-black/70 backdrop-blur sm:hidden">
+      <nav className="fixed bottom-0 left-0 right-0 z-20 border-t border-slate-200 dark:border-white/10 bg-white/90 dark:bg-black/70 backdrop-blur sm:hidden">
         <div className="mx-auto grid max-w-5xl grid-cols-4">
           {navItems.map(({ href, label, icon: Icon }) => {
             const active = pathname === href;
@@ -95,8 +95,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 key={href}
                 href={href}
                 className={clsx(
-                  "flex flex-col items-center justify-center gap-1 py-3 text-xs",
-                  active ? "text-white" : "text-white/60"
+                  "flex flex-col items-center justify-center gap-1 py-3 text-xs transition-colors",
+                  active ? "text-blue-600 dark:text-white" : "text-slate-500 hover:text-slate-900 dark:text-white/60 dark:hover:text-white"
                 )}
               >
                 <Icon className="h-5 w-5" />

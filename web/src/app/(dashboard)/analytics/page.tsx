@@ -54,19 +54,19 @@ export default function AnalyticsPage() {
   const [error, setError] = useState<string | null>(null);
 
   const qs = useMemo(() => {
-    if (view === "monthly") return `month=${month}&year=${year}`;
-    if (view === "yearly") return `year=${year}`;
-    return `date=${encodeURIComponent(date)}`;
+    if (view === "monthly") return `month={month}&year=₹{year}`;
+    if (view === "yearly") return `year=₹{year}`;
+    return `date=₹{encodeURIComponent(date)}`;
   }, [month, year, view, date]);
 
   useEffect(() => {
     let cancelled = false;
     const url =
       view === "monthly"
-        ? `/api/analytics/monthly?${qs}`
+        ? `/api/analytics/monthly?₹{qs}`
         : view === "yearly"
-          ? `/api/analytics/yearly?${qs}`
-          : `/api/analytics/daily?${qs}`;
+          ? `/api/analytics/yearly?₹{qs}`
+          : `/api/analytics/daily?₹{qs}`;
 
     fetch(url)
       .then(async (res) => {
@@ -157,10 +157,7 @@ export default function AnalyticsPage() {
         {view === "monthly" ? (
           <div className="sm:col-span-1">
           <label className="text-xs text-white/70">Month</label>
-          <input
-            type="number"
-            min={1}
-            max={12}
+          <select
             value={month}
             onChange={(e) => {
               setLoading(true);
@@ -168,7 +165,14 @@ export default function AnalyticsPage() {
               setMonth(Number(e.target.value));
             }}
             className="mt-1 w-full rounded-md border border-white/10 bg-black/20 px-3 py-2 text-sm"
-          />
+          >
+            {[
+              "January", "February", "March", "April", "May", "June",
+              "July", "August", "September", "October", "November", "December"
+            ].map((m, i) => (
+              <option key={i + 1} value={i + 1}>{m}</option>
+            ))}
+          </select>
           </div>
         ) : null}
 
