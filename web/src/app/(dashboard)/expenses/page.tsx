@@ -203,7 +203,7 @@ export default function ExpensesPage() {
   }
 
   return (
-    <div className="flex flex-col h-[calc(100vh-6rem)] space-y-6">
+    <div className="flex flex-col h-auto lg:h-[calc(100vh-6rem)] space-y-6">
       {/* Header */}
       <div className="flex shrink-0 items-center justify-between gap-4 animate-[slideDown_0.6s_cubic-bezier(0.34,1.56,0.64,1)]">
         <div>
@@ -220,7 +220,7 @@ export default function ExpensesPage() {
         </button>
       </div>
 
-      <div className="flex flex-1 flex-col lg:flex-row gap-6 min-h-0 pb-6">
+      <div className="flex flex-1 flex-col lg:flex-row gap-6 min-h-0 pb-6 lg:overflow-hidden">
         {/* Left Column: Add New Transaction (fixed, ~30%) */}
         <div className="w-full lg:w-[30%] shrink-0">
           <div className="rounded-2xl border border-cyan-500/30 bg-slate-950/60 backdrop-blur-md p-6 shadow-lg shadow-cyan-900/30 sticky top-0 animate-[slideUp_0.6s_cubic-bezier(0.34,1.56,0.64,1)_0.1s_backwards]">
@@ -304,7 +304,7 @@ export default function ExpensesPage() {
         </div>
 
         {/* Right Column: Transactions List + Filters (~70%) */}
-        <div className="w-full lg:w-[70%] flex flex-col gap-4 overflow-hidden">
+        <div className="w-full lg:w-[70%] flex flex-col gap-4 lg:overflow-hidden">
           
           {/* Filter/Search Bar */}
           <div className="shrink-0 rounded-2xl border border-cyan-500/30 bg-slate-950/60 backdrop-blur-md p-4 sm:p-6 shadow-lg shadow-cyan-900/30 z-10 animate-[slideDown_0.6s_cubic-bezier(0.34,1.56,0.64,1)]">
@@ -404,7 +404,7 @@ export default function ExpensesPage() {
           </div>
 
           {/* Transactions List */}
-          <div className="flex-1 overflow-y-auto rounded-2xl border border-white/10 bg-slate-950/40 backdrop-blur-md shadow-lg scrollbar-thin scrollbar-thumb-cyan-600/50 scrollbar-track-transparent">
+          <div className="flex-1 overflow-y-auto lg:overflow-y-auto rounded-2xl border border-white/10 bg-slate-950/40 backdrop-blur-md shadow-lg scrollbar-thin scrollbar-thumb-cyan-600/50 scrollbar-track-transparent">
             <div className="sticky top-0 z-10 flex items-center justify-between px-6 py-4 bg-slate-950/90 backdrop-blur-md border-b border-white/10 shadow-sm">
               <h2 className="text-sm font-semibold bg-gradient-to-r from-cyan-300 to-cyan-400 bg-clip-text text-transparent">Transactions List</h2>
             </div>
