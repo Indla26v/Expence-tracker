@@ -164,10 +164,10 @@ export default function AnalyticsPage() {
 
       <div className="flex flex-1 flex-col gap-6 min-h-0 pb-6">
         {/* ROW 1: Controls card AND 'Spending by category' / 'Today by hour' Pie/Bar Chart */}
-        <div className="grid lg:grid-cols-3 gap-6 w-full">
+        <div className="flex flex-col lg:flex-row gap-6">
           {/* Left: Controls Card */}
-          <div className="lg:col-span-1 flex flex-col gap-6">
-            <div className="rounded-2xl border border-blue-600/30 bg-gradient-to-br from-blue-600/10 via-blue-700/5 to-transparent p-6 shadow-lg shadow-blue-900/30 space-y-6">
+          <div className="w-full lg:w-[30%] shrink-0 flex flex-col gap-6">
+              <div className="rounded-2xl border border-blue-600/30 bg-gradient-to-br from-blue-600/10 via-blue-700/5 to-transparent p-6 shadow-lg shadow-blue-900/30 space-y-6 sticky top-0">
               <div className="flex flex-wrap items-center gap-2">
                 {(
                   [
@@ -305,7 +305,7 @@ export default function AnalyticsPage() {
           </div>
 
           {/* Right: Pie Chart / Hourly bars */}
-          <div className="lg:col-span-2 flex flex-col min-h-[400px]">
+          <div className="flex flex-1 flex-col gap-6 min-w-0 min-h-[400px]">
             <div className="rounded-2xl border border-white/10 bg-slate-950/40 backdrop-blur-md p-5 flex flex-col h-full flex-1">
               <div className="text-sm font-semibold text-blue-300 mb-6">
                 {view === "daily" ? "Today by hour" : "Spending by category"}
@@ -374,13 +374,11 @@ export default function AnalyticsPage() {
                 )}
               </div>
             </div>
-          </div>
-        </div>
 
-        {/* ROW 2: Day-by-day / Month-by-month */}
-        <div className="w-full flex-none">
-          <div className="rounded-2xl border border-white/10 bg-slate-950/40 backdrop-blur-md p-5 flex flex-col h-full min-h-[400px]">
-            <div className="text-sm font-semibold text-blue-300 mb-6">
+            {/* ROW 2: Day-by-day / Month-by-month */}
+            <div className="w-full flex-none">
+              <div className="rounded-2xl border border-white/10 bg-slate-950/40 backdrop-blur-md p-5 flex flex-col h-full min-h-[400px]">
+                <div className="text-sm font-semibold text-blue-300 mb-6">
               {view === "yearly" ? "Month-by-month" : "Day-by-day"}
             </div>
             <div className="flex-1 w-full h-[300px]">
@@ -429,6 +427,8 @@ export default function AnalyticsPage() {
               )}
             </div>
           </div>
+        </div>
+        </div>
         </div>
 
       </div>

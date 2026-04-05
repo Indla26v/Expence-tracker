@@ -32,7 +32,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <div className="absolute bottom-10 right-1/3 w-48 h-48 bg-cyan-500/4 rounded-full blur-2xl animate-[morph_13s_ease-in-out_infinite_3s]" />
       </div>
       <header className="sticky top-0 z-20 border-b border-white/10 bg-black/60 backdrop-blur">
-        <div className={clsx("mx-auto flex w-full items-center justify-between px-4 py-3", pathname === "/analytics" ? "max-w-screen-2xl" : "max-w-5xl")}>
+        <div className="mx-auto flex w-full items-center justify-between max-w-5xl px-4 py-3">
           <div className="flex items-center gap-2">
             <Link href="/" className="flex items-center gap-3 group">
               <div className="w-9 h-9 rounded-xl overflow-hidden bg-white flex items-center justify-center p-1 shadow-lg transition-transform group-hover:scale-105">
@@ -71,7 +71,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </div>
       </header>
 
-      <div className={clsx("mx-auto w-full px-4 pb-24 pt-6 sm:pb-8 relative z-10", pathname === "/analytics" ? "max-w-screen-2xl" : "max-w-5xl")}>
+      <div className="relative z-10 mx-auto w-full max-w-5xl px-4 pb-24 pt-6 sm:pb-8">
         {children}
       </div>
 
