@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { format } from "date-fns";
+import { CATEGORY_COLORS, type Category } from "@/lib/categories";
 
 function utcStartOfDay(d: Date) {
   return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), 0, 0, 0, 0));
@@ -175,26 +176,34 @@ export default async function DashboardPage() {
                   <h3 className="text-xs font-semibold text-blue-200 uppercase tracking-wider">{dateKey}</h3>
                 </div>
                 <div className="divide-y divide-white/5">
-                  {dayItems.map((e) => (
-                    <div 
-                      key={e.id} 
-                      className="flex items-center justify-between px-6 py-3 transition-all duration-300 hover:bg-white/5 group"
+                  {(dayItems as typeof recent).map((e) => (
+                    <div
+                      key={e.id}
+                      className="flex items-center justify-between gap-3 px-4 py-3 hover:bg-white/5 transition-colors group"
                     >
                       <div className="min-w-0">
                         <div className="truncate text-sm font-medium text-white group-hover:text-cyan-200 transition-colors">
-                          {e.category}
-                          {e.note ? <span className="text-white/50 group-hover:text-white/70"> — {e.note}</span> : null}
+                          <span className="inline-flex items-center gap-2">
+                            <span
+                              className="h-2.5 w-2.5 rounded-full"
+                              style={{
+                                background: CATEGORY_COLORS[e.category as Category] ?? "rgba(148,163,184,1)",
+                              }}
+                            />
+                            {e.category}
+                          </span>
+                          {e.note ? <span className="text-white/60 group-hover:text-white/70 transition-colors"> — {e.note}</span> : null}
                         </div>
-                        <div className="text-xs text-white/40 group-hover:text-white/60 transition-colors">
-                          {e.type}
+                        <div className="text-xs text-white/60 group-hover:text-white/80 mt-1 transition-colors pl-[1.125rem]">
+                          {format(new Date(e.date), "HH:mm")} • {e.type}
                         </div>
                       </div>
-                      <div className={`shrink-0 text-sm font-bold rounded-lg px-3 py-1 ${
-                        e.type === "expense"
-                          ? "text-red-500 bg-red-50 dark:text-red-300 dark:bg-red-500/10"
-                          : "text-emerald-500 bg-emerald-50 dark:text-emerald-300 dark:bg-emerald-500/10"
-                      } transition-all group-hover:shadow-sm dark:group-hover:shadow-lg`}>
-                        {e.type === "expense" ? "-" : "+"}₹{e.amount.toFixed(2)}
+                      <div className="flex items-center gap-4">
+                        <div className={`text-base font-semibold transition-colors ${
+                          e.type === "expense" ? "text-rose-400 group-hover:text-rose-300" : "text-emerald-400 group-hover:text-emerald-300"
+                        }`}>
+                          {e.type === "expense" ? "-" : "+"}₹{e.amount.toFixed(2)}
+                        </div>
                       </div>
                     </div>
                   ))}
