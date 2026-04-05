@@ -28,9 +28,9 @@ export default function AnalyticsScreen() {
   const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
 
   const qs = useMemo(() => {
-    if (view === "monthly") return `month=${month}&year=${year}`;
-    if (view === "yearly") return `year=${year}`;
-    return `date=${encodeURIComponent(date)}`;
+    if (view === "monthly") return `month=₹{month}&year=₹{year}`;
+    if (view === "yearly") return `year=₹{year}`;
+    return `date=₹{encodeURIComponent(date)}`;
   }, [date, month, view, year]);
 
   const [monthly, setMonthly] = useState<MonthlyResponse | null>(null);
@@ -45,10 +45,10 @@ export default function AnalyticsScreen() {
     try {
       const path =
         view === "monthly"
-          ? `/api/analytics/monthly?${qs}`
+          ? `/api/analytics/monthly?₹{qs}`
           : view === "yearly"
-            ? `/api/analytics/yearly?${qs}`
-            : `/api/analytics/daily?${qs}`;
+            ? `/api/analytics/yearly?₹{qs}`
+            : `/api/analytics/daily?₹{qs}`;
 
       const res = await authedFetch(path);
       if (!res.ok) throw new Error("Failed to load analytics");
@@ -87,9 +87,9 @@ export default function AnalyticsScreen() {
   return (
     <View className="flex-1 bg-black px-5 pt-4">
       <View className="flex-row items-center justify-between">
-        <Text className="text-2xl font-semibold text-white">Analytics</Text>
+        <Text className="text-2xl font-semibold text-slate-100">Analytics</Text>
         <Pressable onPress={() => void load()} className="rounded-xl border border-white/10 px-3 py-2">
-          <Text className="text-xs text-white/80">Refresh</Text>
+          <Text className="text-xs text-slate-100/80">Refresh</Text>
         </Pressable>
       </View>
 
@@ -112,7 +112,7 @@ export default function AnalyticsScreen() {
               view === id ? "border-white/20 bg-white/10" : "border-white/10"
             }`}
           >
-            <Text className="text-center text-xs text-white">{label}</Text>
+            <Text className="text-center text-xs text-slate-100">{label}</Text>
           </Pressable>
         ))}
       </View>
@@ -123,7 +123,7 @@ export default function AnalyticsScreen() {
             value={String(month)}
             onChangeText={(t) => setMonth(Number(t || "0"))}
             keyboardType="number-pad"
-            className="flex-1 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white"
+            className="flex-1 rounded-xl border border-purple-500/50 bg-slate-950 p-4 shadow-sm px-4 py-3 text-slate-100"
             placeholder="Month"
             placeholderTextColor="rgba(255,255,255,0.4)"
           />
@@ -131,7 +131,7 @@ export default function AnalyticsScreen() {
             value={String(year)}
             onChangeText={(t) => setYear(Number(t || "0"))}
             keyboardType="number-pad"
-            className="flex-1 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white"
+            className="flex-1 rounded-xl border border-purple-500/50 bg-slate-950 p-4 shadow-sm px-4 py-3 text-slate-100"
             placeholder="Year"
             placeholderTextColor="rgba(255,255,255,0.4)"
           />
@@ -144,7 +144,7 @@ export default function AnalyticsScreen() {
             value={String(year)}
             onChangeText={(t) => setYear(Number(t || "0"))}
             keyboardType="number-pad"
-            className="flex-1 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white"
+            className="flex-1 rounded-xl border border-purple-500/50 bg-slate-950 p-4 shadow-sm px-4 py-3 text-slate-100"
             placeholder="Year"
             placeholderTextColor="rgba(255,255,255,0.4)"
           />
@@ -156,7 +156,7 @@ export default function AnalyticsScreen() {
           <TextInput
             value={date}
             onChangeText={setDate}
-            className="flex-1 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white"
+            className="flex-1 rounded-xl border border-purple-500/50 bg-slate-950 p-4 shadow-sm px-4 py-3 text-slate-100"
             placeholder="YYYY-MM-DD"
             placeholderTextColor="rgba(255,255,255,0.4)"
           />
@@ -170,35 +170,35 @@ export default function AnalyticsScreen() {
       ) : null}
 
       <View className="mt-4 flex-row gap-3">
-        <View className="flex-1 rounded-2xl border border-white/10 bg-white/5 p-4">
-          <Text className="text-xs text-white/70">Income</Text>
-          <Text className="mt-2 text-lg font-semibold text-white">
-            ${totals?.income.toFixed(2) ?? "—"}
+        <View className="flex-1 rounded-2xl border border-purple-500/50 bg-slate-950 p-4 shadow-sm p-4">
+          <Text className="text-xs font-medium text-slate-300">Income</Text>
+          <Text className="mt-2 text-lg font-semibold text-slate-100">
+            ₹{totals?.income.toFixed(2) ?? "—"}
           </Text>
         </View>
-        <View className="flex-1 rounded-2xl border border-white/10 bg-white/5 p-4">
-          <Text className="text-xs text-white/70">Expense</Text>
-          <Text className="mt-2 text-lg font-semibold text-white">
-            ${totals?.expense.toFixed(2) ?? "—"}
+        <View className="flex-1 rounded-2xl border border-purple-500/50 bg-slate-950 p-4 shadow-sm p-4">
+          <Text className="text-xs font-medium text-slate-300">Expense</Text>
+          <Text className="mt-2 text-lg font-semibold text-slate-100">
+            ₹{totals?.expense.toFixed(2) ?? "—"}
           </Text>
         </View>
       </View>
 
-      <Text className="mt-6 text-sm font-medium text-white">
+      <Text className="mt-6 text-sm font-medium text-slate-100">
         {view === "daily" ? "By hour" : view === "yearly" ? "Month-by-month" : "By category"}
       </Text>
 
       {loading ? (
-        <Text className="mt-3 text-white/70">Loading…</Text>
+        <Text className="mt-3 font-medium text-slate-300">Loading…</Text>
       ) : view === "yearly" ? (
         <View className="mt-3 gap-2">
           {(yearly?.byMonth ?? []).map((m) => {
             const w = maxBar > 0 ? (m.expense / maxBar) * 100 : 0;
             return (
-              <View key={m.month} className="rounded-xl border border-white/10 bg-white/5 p-3">
+              <View key={m.month} className="rounded-xl border border-purple-500/50 bg-slate-950 p-4 shadow-sm p-3">
                 <View className="flex-row items-center justify-between">
-                  <Text className="text-white text-xs">{new Date(m.month).toLocaleString(undefined, { month: "short" })}</Text>
-                  <Text className="text-white/90 text-xs font-medium">${m.expense.toFixed(2)}</Text>
+                  <Text className="text-slate-100 text-xs">{new Date(m.month).toLocaleString(undefined, { month: "short" })}</Text>
+                  <Text className="text-slate-100/90 text-xs font-medium">₹{m.expense.toFixed(2)}</Text>
                 </View>
                 <View className="mt-2 h-2 w-full overflow-hidden rounded-full bg-white/10">
                   <View className="h-full rounded-full bg-white" style={{ width: `${w}%` }} />
@@ -212,10 +212,10 @@ export default function AnalyticsScreen() {
           {(daily?.byHour ?? []).filter((h) => h.expense > 0).map((h) => {
             const w = maxBar > 0 ? (h.expense / maxBar) * 100 : 0;
             return (
-              <View key={h.hour} className="rounded-xl border border-white/10 bg-white/5 p-3">
+              <View key={h.hour} className="rounded-xl border border-purple-500/50 bg-slate-950 p-4 shadow-sm p-3">
                 <View className="flex-row items-center justify-between">
-                  <Text className="text-white text-xs">{`${h.hour}:00`}</Text>
-                  <Text className="text-white/90 text-xs font-medium">${h.expense.toFixed(2)}</Text>
+                  <Text className="text-slate-100 text-xs">{`${h.hour}:00`}</Text>
+                  <Text className="text-slate-100/90 text-xs font-medium">₹{h.expense.toFixed(2)}</Text>
                 </View>
                 <View className="mt-2 h-2 w-full overflow-hidden rounded-full bg-white/10">
                   <View className="h-full rounded-full bg-white" style={{ width: `${w}%` }} />
@@ -226,7 +226,7 @@ export default function AnalyticsScreen() {
         </View>
       ) : (
         <>
-          <Text className="mt-6 text-sm font-medium text-white">By category</Text>
+          <Text className="mt-6 text-sm font-medium text-slate-100">By category</Text>
           <View className="mt-3">
             <FlatList
               data={categoryRows.filter((x) => x.total > 0)}
@@ -240,9 +240,9 @@ export default function AnalyticsScreen() {
                     <View className="flex-row items-center justify-between">
                       <View className="flex-row items-center gap-2">
                         <View style={{ width: 8, height: 8, borderRadius: 999, backgroundColor: color }} />
-                        <Text className="text-white">{item.category}</Text>
+                        <Text className="text-slate-100">{item.category}</Text>
                       </View>
-                      <Text className="text-white/90 font-medium">${item.total.toFixed(2)}</Text>
+                      <Text className="text-slate-100/90 font-medium">₹{item.total.toFixed(2)}</Text>
                     </View>
                     <View className="mt-2 h-2 w-full overflow-hidden rounded-full bg-white/10">
                       <View className="h-full rounded-full" style={{ width: `${w}%`, backgroundColor: color }} />
@@ -250,7 +250,7 @@ export default function AnalyticsScreen() {
                   </View>
                 );
               }}
-              ListEmptyComponent={<Text className="mt-3 text-white/70">No data.</Text>}
+              ListEmptyComponent={<Text className="mt-3 font-medium text-slate-300">No data.</Text>}
             />
           </View>
         </>

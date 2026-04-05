@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, Pressable } from "react-native";
+import { View, Text, TextInput, Pressable, Image, ScrollView } from "react-native";
 import { useAuth } from "@/components/auth";
 import { useRouter } from "expo-router";
 
@@ -26,9 +26,15 @@ export default function LoginScreen() {
   }
 
   return (
-    <View className="flex-1 bg-black px-6 justify-center">
-      <Text className="text-2xl font-semibold text-white">Expense Tracker</Text>
-      <Text className="mt-2 text-white/70">Sign in to continue</Text>
+    <ScrollView className="flex-1 bg-black">
+      <View className="flex-1 px-6 justify-center min-h-full">
+        <View className="items-center mb-8 mt-20">
+          <View className="w-24 h-24 rounded-3xl overflow-hidden bg-white flex items-center justify-center p-2 mb-4 shadow-lg">
+            <Image source={require('../../assets/images/logo.jpg')} style={{ width: '100%', height: '100%', resizeMode: 'contain' }} />
+          </View>
+          <Text className="text-3xl font-bold text-white tracking-tight">Expense Tracker</Text>
+          <Text className="mt-2 text-white/70 text-center">Sign in to continue</Text>
+        </View>
 
       <View className="mt-8 gap-4">
         <View>
@@ -72,7 +78,8 @@ export default function LoginScreen() {
           </Text>
         </Pressable>
       </View>
-    </View>
+      </View>
+    </ScrollView>
   );
 }
 

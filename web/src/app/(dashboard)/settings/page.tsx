@@ -163,7 +163,7 @@ export default function SettingsPage() {
           <button
             onClick={() => void onSaveBalance()}
             disabled={savingBalance || loadingSettings}
-            className="rounded-md bg-blue-600 hover:bg-blue-700 dark:bg-white px-3 py-2 text-sm font-medium text-white dark:text-black disabled:opacity-60 transition-colors"
+            className="rounded-md bg-cyan-600 hover:bg-cyan-700 dark:bg-cyan-400 px-3 py-2 text-sm font-medium text-white dark:text-gray-900 disabled:opacity-60 transition-colors"
           >
             {savingBalance ? "Saving..." : "Save Base Amount"}
           </button>
@@ -229,7 +229,7 @@ export default function SettingsPage() {
           <button
             onClick={() => void onSaveBudget()}
             disabled={saving || !amount}
-            className="rounded-md bg-blue-600 hover:bg-blue-700 dark:bg-white px-3 py-2 text-sm font-medium text-white dark:text-black disabled:opacity-60 transition-colors"
+            className="rounded-md bg-cyan-600 hover:bg-cyan-700 dark:bg-cyan-400 px-3 py-2 text-sm font-medium text-white dark:text-gray-900 disabled:opacity-60 transition-colors"
           >
             {saving ? "Saving..." : "Save Budget"}
           </button>

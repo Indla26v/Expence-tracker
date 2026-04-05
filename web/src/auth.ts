@@ -73,6 +73,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (token?.email) session.user.email = String(token.email);
       return session;
     },
+    async redirect({ url, baseUrl }) {
+      // Allowed redirect URLs - only redirect to same origin
+      if (url.startsWith("/")) return `${baseUrl}${url}`;
+      else if (new URL(url).origin === baseUrl) return url;
+      return baseUrl;
+    },
   },
 });
 

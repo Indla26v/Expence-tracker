@@ -69,7 +69,7 @@ export default async function DashboardPage() {
 
   const budgetColor =
     budgetAmount === 0
-      ? "text-blue-600 dark:text-blue-300"
+      ? "text-cyan-600 dark:text-cyan-300"
       : budgetPct >= 1
         ? "text-red-500 dark:text-red-400"
         : budgetPct >= 0.8
@@ -78,7 +78,7 @@ export default async function DashboardPage() {
 
   const budgetBarColor =
     budgetAmount === 0
-      ? "bg-gradient-to-r from-blue-600 to-blue-500"
+      ? "bg-gradient-to-r from-cyan-600 to-cyan-500"
       : budgetPct >= 1
         ? "bg-gradient-to-r from-red-500 to-red-400"
         : budgetPct >= 0.8
@@ -89,38 +89,38 @@ export default async function DashboardPage() {
     <div className="space-y-6">
       <div className="flex items-start justify-between gap-4 animate-[slideDown_0.6s_cubic-bezier(0.34,1.56,0.64,1)]">
         <div>
-          <h1 className="bg-gradient-to-r from-blue-600 via-blue-500 to-blue-700 bg-clip-text text-3xl font-bold text-transparent">
+          <h1 className="bg-gradient-to-r from-cyan-400 via-cyan-300 to-cyan-400 bg-clip-text text-3xl font-bold text-transparent">
             Dashboard
           </h1>
-          <p className="mt-1 text-sm text-blue-400/70">{format(now, "EEEE, MMM d")}</p>
+          <p className="mt-1 text-sm text-cyan-400/60">{format(now, "EEEE, MMM d")}</p>
         </div>
         <Link
           href="/expenses"
-          className="rounded-lg bg-gradient-to-r from-blue-600 to-blue-700 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-blue-600/50 transition-all duration-300 hover:shadow-lg hover:shadow-blue-700/75 hover:scale-105 active:scale-95"
+          className="rounded-lg bg-gradient-to-r from-cyan-400 to-cyan-500 px-4 py-2 text-sm font-semibold text-gray-900 shadow-lg shadow-cyan-400/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/75 hover:scale-105 active:scale-95"
         >
           Quick add
         </Link>
       </div>
 
       <div className="card-grid grid gap-4 sm:grid-cols-4">
-        <div className="group rounded-2xl border border-blue-500/50 bg-slate-950 p-6 shadow-lg shadow-blue-900/50 transition-all duration-300 hover:border-blue-400/70 hover:shadow-xl hover:shadow-blue-800/50">
-          <div className="text-sm font-medium text-blue-300">Total Money</div>
+        <div className="group rounded-2xl border border-cyan-400/50 bg-slate-950 p-6 shadow-lg shadow-cyan-900/50 transition-all duration-300 hover:border-cyan-400/70 hover:shadow-xl hover:shadow-cyan-800/50">
+          <div className="text-sm font-medium text-cyan-300">Total Money</div>
           <div className={`mt-3 text-3xl font-bold transition-colors ${totalBalance >= 0 ? "text-emerald-400 group-hover:text-emerald-300" : "text-red-400 group-hover:text-red-300"}`}>
             ₹{totalBalance.toFixed(2)}
           </div>
           <div className={`mt-2 h-1 w-12 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${totalBalance >= 0 ? "bg-gradient-to-r from-emerald-400 to-emerald-600" : "bg-gradient-to-r from-red-400 to-red-600"}`} />
         </div>
 
-        <div className="group rounded-2xl border border-purple-500/50 bg-slate-950 p-6 shadow-lg shadow-purple-900/50 transition-all duration-300 hover:border-purple-400/70 hover:shadow-xl hover:shadow-purple-800/50">
-          <div className="text-sm font-medium text-purple-300">Today's spend</div>
-          <div className="mt-3 text-3xl font-bold text-white group-hover:text-blue-100 transition-colors">₹{todaySpend.toFixed(2)}</div>
-          <div className="mt-2 h-1 w-12 bg-gradient-to-r from-purple-400 to-purple-600 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        <div className="group rounded-2xl border border-cyan-400/50 bg-slate-950 p-6 shadow-lg shadow-cyan-900/50 transition-all duration-300 hover:border-cyan-400/70 hover:shadow-xl hover:shadow-cyan-800/50">
+          <div className="text-sm font-medium text-cyan-300">Today's spend</div>
+          <div className="mt-3 text-3xl font-bold text-white group-hover:text-cyan-200 transition-colors">₹{todaySpend.toFixed(2)}</div>
+          <div className="mt-2 h-1 w-12 bg-gradient-to-r from-cyan-400 to-cyan-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
         </div>
 
-        <div className="group rounded-2xl border border-indigo-500/50 bg-slate-950 p-6 shadow-lg shadow-indigo-900/50 transition-all duration-300 hover:border-indigo-400/70 hover:shadow-xl hover:shadow-indigo-800/50">
-          <div className="text-sm font-medium text-indigo-300">This month</div>
-          <div className="mt-3 text-3xl font-bold text-white group-hover:text-blue-100 transition-colors">₹{monthSpend.toFixed(2)}</div>
-          <div className="mt-2 h-1 w-12 bg-gradient-to-r from-indigo-400 to-indigo-600 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        <div className="group rounded-2xl border border-cyan-400/50 bg-slate-950 p-6 shadow-lg shadow-cyan-900/50 transition-all duration-300 hover:border-cyan-400/70 hover:shadow-xl hover:shadow-cyan-800/50">
+          <div className="text-sm font-medium text-cyan-300">This month</div>
+          <div className="mt-3 text-3xl font-bold text-white group-hover:text-cyan-200 transition-colors">₹{monthSpend.toFixed(2)}</div>
+          <div className="mt-2 h-1 w-12 bg-gradient-to-r from-cyan-400 to-cyan-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
         </div>
 
         <div className="group rounded-2xl border border-emerald-500/50 bg-slate-950 p-6 shadow-lg shadow-emerald-900/50 transition-all duration-300 hover:border-emerald-400/70 hover:shadow-xl hover:shadow-emerald-800/50">
@@ -130,7 +130,7 @@ export default async function DashboardPage() {
               Set
             </Link>
           </div>
-          <div className={`mt-3 text-3xl font-bold ${budgetColor.replace('text-blue-600', 'text-blue-300').replace('text-red-500', 'text-red-300').replace('text-yellow-600', 'text-yellow-300').replace('text-emerald-600', 'text-emerald-300').replace('dark:', 'dark:text-')} group-hover:scale-105 transition-transform`}>
+          <div className={`mt-3 text-3xl font-bold ${budgetColor.replace('text-cyan-600', 'text-cyan-300').replace('text-red-500', 'text-red-300').replace('text-yellow-600', 'text-yellow-300').replace('text-emerald-600', 'text-emerald-300').replace('dark:', 'dark:text-')} group-hover:scale-105 transition-transform`}>
             ₹{budgetAmount > 0 ? budgetRemaining.toFixed(2) : "0.00"}
           </div>
           <div className="mt-4 h-2 w-full overflow-hidden rounded-full bg-white/5 border border-white/10">
@@ -149,8 +149,8 @@ export default async function DashboardPage() {
 
       <div className="rounded-2xl border border-white/10 bg-slate-950 shadow-lg overflow-hidden animate-[slideUp_0.6s_cubic-bezier(0.34,1.56,0.64,1)_0.2s_backwards]">
         <div className="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-slate-800 to-slate-900 border-b border-white/10">
-          <h2 className="text-sm font-semibold bg-gradient-to-r from-blue-300 to-blue-400 bg-clip-text text-transparent">Recent transactions</h2>
-          <Link href="/expenses" className="text-xs text-blue-300 hover:text-blue-400 underline transition-colors">
+          <h2 className="text-sm font-semibold bg-gradient-to-r from-cyan-300 to-cyan-400 bg-clip-text text-transparent">Recent transactions</h2>
+          <Link href="/expenses" className="text-xs text-cyan-300 hover:text-cyan-400 underline transition-colors">
             View all
           </Link>
         </div>
@@ -169,7 +169,7 @@ export default async function DashboardPage() {
                 }}
               >
                 <div className="min-w-0">
-                  <div className="truncate text-sm font-medium text-white group-hover:text-blue-200 transition-colors">
+                  <div className="truncate text-sm font-medium text-white group-hover:text-cyan-200 transition-colors">
                     {e.category}
                     {e.note ? <span className="text-white/50 group-hover:text-white/70"> — {e.note}</span> : null}
                   </div>

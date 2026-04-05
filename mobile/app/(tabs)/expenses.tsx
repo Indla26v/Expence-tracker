@@ -62,7 +62,7 @@ export default function ExpensesScreen() {
     setLoading(true);
     setError(null);
     try {
-      const res = await authedFetch(`/api/expenses?${qs}`);
+      const res = await authedFetch(`/api/expenses?₹{qs}`);
       if (!res.ok) throw new Error("Failed to load expenses");
       const json = (await res.json()) as { items: Expense[] };
       setItems(json.items ?? []);
@@ -120,7 +120,7 @@ export default function ExpensesScreen() {
     setEditSaving(true);
     setError(null);
     try {
-      const res = await authedFetch(`/api/expenses/${editing.id}`, {
+      const res = await authedFetch(`/api/expenses/₹{editing.id}`, {
         method: "PUT",
         body: JSON.stringify({
           amount: Number(editAmount),
@@ -147,7 +147,7 @@ export default function ExpensesScreen() {
     setError(null);
     const prev = items;
     setItems((x) => x.filter((e) => e.id !== id));
-    const res = await authedFetch(`/api/expenses/${id}`, { method: "DELETE" });
+    const res = await authedFetch(`/api/expenses/₹{id}`, { method: "DELETE" });
     if (!res.ok) {
       setItems(prev);
       setError("Failed to delete");
@@ -157,14 +157,14 @@ export default function ExpensesScreen() {
   return (
     <View className="flex-1 bg-black px-5 pt-4">
       <View className="flex-row items-center justify-between">
-        <Text className="text-2xl font-semibold text-white">Expenses</Text>
+        <Text className="text-2xl font-semibold text-slate-100">Expenses</Text>
         <Pressable onPress={() => void load()} className="rounded-xl border border-white/10 px-3 py-2">
-          <Text className="text-xs text-white/80">Refresh</Text>
+          <Text className="text-xs text-slate-100/80">Refresh</Text>
         </Pressable>
       </View>
 
-      <View className="mt-4 rounded-2xl border border-white/10 bg-white/5 p-4">
-        <Text className="text-sm font-medium text-white">Add transaction</Text>
+      <View className="mt-4 rounded-2xl border border-blue-500/50 bg-slate-950 p-4 shadow-md p-4">
+        <Text className="text-sm font-medium text-slate-100">Add transaction</Text>
 
         <View className="mt-3 flex-row gap-2">
           <Pressable
@@ -173,7 +173,7 @@ export default function ExpensesScreen() {
               type === "expense" ? "border-white/20 bg-white/10" : "border-white/10"
             }`}
           >
-            <Text className="text-center text-xs text-white">Expense</Text>
+            <Text className="text-center text-xs text-slate-100">Expense</Text>
           </Pressable>
           <Pressable
             onPress={() => setType("income")}
@@ -181,7 +181,7 @@ export default function ExpensesScreen() {
               type === "income" ? "border-white/20 bg-white/10" : "border-white/10"
             }`}
           >
-            <Text className="text-center text-xs text-white">Income</Text>
+            <Text className="text-center text-xs text-slate-100">Income</Text>
           </Pressable>
         </View>
 
@@ -198,7 +198,7 @@ export default function ExpensesScreen() {
                 <View
                   style={{ backgroundColor: CATEGORY_COLORS[c], width: 8, height: 8, borderRadius: 999 }}
                 />
-                <Text className="text-xs text-white">{c}</Text>
+                <Text className="text-xs text-slate-100">{c}</Text>
               </View>
             </Pressable>
           ))}
@@ -209,14 +209,14 @@ export default function ExpensesScreen() {
             value={amount}
             onChangeText={setAmount}
             keyboardType="decimal-pad"
-            className="flex-1 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white"
+            className="flex-1 rounded-xl border border-blue-500/50 bg-slate-950 p-4 shadow-md px-4 py-3 text-slate-100"
             placeholder="Amount"
             placeholderTextColor="rgba(255,255,255,0.4)"
           />
           <TextInput
-            value={date}
-            onChangeText={setDate}
-            className="flex-1 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white"
+            value={typeof date === "string" ? date : (date instanceof Date ? date.toISOString().split("T")[0] : String(date))}
+            onChangeText={setDate as any}
+            className="flex-1 rounded-xl border border-blue-500/50 bg-slate-950 p-4 shadow-md px-4 py-3 text-slate-100"
             placeholder="YYYY-MM-DD"
             placeholderTextColor="rgba(255,255,255,0.4)"
           />
@@ -224,7 +224,7 @@ export default function ExpensesScreen() {
         <TextInput
           value={note}
           onChangeText={setNote}
-          className="mt-2 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white"
+          className="mt-2 rounded-xl border border-blue-500/50 bg-slate-950 p-4 shadow-md px-4 py-3 text-slate-100"
           placeholder="Note (optional)"
           placeholderTextColor="rgba(255,255,255,0.4)"
         />
@@ -238,8 +238,8 @@ export default function ExpensesScreen() {
         </Pressable>
       </View>
 
-      <View className="mt-4 rounded-2xl border border-white/10 bg-white/5 p-4">
-        <Text className="text-sm font-medium text-white">Filters</Text>
+      <View className="mt-4 rounded-2xl border border-blue-500/50 bg-slate-950 p-4 shadow-md p-4">
+        <Text className="text-sm font-medium text-slate-100">Filters</Text>
 
         <View className="mt-3 flex-row gap-2">
           {(
@@ -257,7 +257,7 @@ export default function ExpensesScreen() {
                 rangePreset === id ? "border-white/20 bg-white/10" : "border-white/10"
               }`}
             >
-              <Text className="text-center text-xs text-white">{label}</Text>
+              <Text className="text-center text-xs text-slate-100">{label}</Text>
             </Pressable>
           ))}
         </View>
@@ -268,7 +268,7 @@ export default function ExpensesScreen() {
               value={String(month)}
               onChangeText={(t) => setMonth(Number(t || "0"))}
               keyboardType="number-pad"
-              className="flex-1 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white"
+              className="flex-1 rounded-xl border border-blue-500/50 bg-slate-950 p-4 shadow-md px-4 py-3 text-slate-100"
               placeholder="Month"
               placeholderTextColor="rgba(255,255,255,0.4)"
             />
@@ -276,7 +276,7 @@ export default function ExpensesScreen() {
               value={String(year)}
               onChangeText={(t) => setYear(Number(t || "0"))}
               keyboardType="number-pad"
-              className="flex-1 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white"
+              className="flex-1 rounded-xl border border-blue-500/50 bg-slate-950 p-4 shadow-md px-4 py-3 text-slate-100"
               placeholder="Year"
               placeholderTextColor="rgba(255,255,255,0.4)"
             />
@@ -289,7 +289,7 @@ export default function ExpensesScreen() {
               value={String(year)}
               onChangeText={(t) => setYear(Number(t || "0"))}
               keyboardType="number-pad"
-              className="flex-1 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white"
+              className="flex-1 rounded-xl border border-blue-500/50 bg-slate-950 p-4 shadow-md px-4 py-3 text-slate-100"
               placeholder="Year"
               placeholderTextColor="rgba(255,255,255,0.4)"
             />
@@ -301,7 +301,7 @@ export default function ExpensesScreen() {
             <TextInput
               value={from}
               onChangeText={setFrom}
-              className="flex-1 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white"
+              className="flex-1 rounded-xl border border-blue-500/50 bg-slate-950 p-4 shadow-md px-4 py-3 text-slate-100"
               placeholder="Week start (YYYY-MM-DD)"
               placeholderTextColor="rgba(255,255,255,0.4)"
             />
@@ -316,7 +316,7 @@ export default function ExpensesScreen() {
               }}
               className="rounded-xl border border-white/10 px-3 py-3"
             >
-              <Text className="text-xs text-white/80">+7d</Text>
+              <Text className="text-xs text-slate-100/80">+7d</Text>
             </Pressable>
           </View>
         ) : null}
@@ -326,14 +326,14 @@ export default function ExpensesScreen() {
             <TextInput
               value={from}
               onChangeText={setFrom}
-              className="flex-1 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white"
+              className="flex-1 rounded-xl border border-blue-500/50 bg-slate-950 p-4 shadow-md px-4 py-3 text-slate-100"
               placeholder="From (YYYY-MM-DD)"
               placeholderTextColor="rgba(255,255,255,0.4)"
             />
             <TextInput
               value={to}
               onChangeText={setTo}
-              className="flex-1 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white"
+              className="flex-1 rounded-xl border border-blue-500/50 bg-slate-950 p-4 shadow-md px-4 py-3 text-slate-100"
               placeholder="To (YYYY-MM-DD)"
               placeholderTextColor="rgba(255,255,255,0.4)"
             />
@@ -343,7 +343,7 @@ export default function ExpensesScreen() {
         <TextInput
           value={q}
           onChangeText={setQ}
-          className="mt-3 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white"
+          className="mt-3 rounded-xl border border-blue-500/50 bg-slate-950 p-4 shadow-md px-4 py-3 text-slate-100"
           placeholder="Search note or category…"
           placeholderTextColor="rgba(255,255,255,0.4)"
         />
@@ -356,9 +356,9 @@ export default function ExpensesScreen() {
       ) : null}
 
       {loading ? (
-        <Text className="mt-4 text-white/70">Loading…</Text>
+        <Text className="mt-4 font-medium text-slate-300">Loading…</Text>
       ) : items.length === 0 ? (
-        <Text className="mt-4 text-white/70">No transactions.</Text>
+        <Text className="mt-4 font-medium text-slate-300">No transactions.</Text>
       ) : (
         <FlatList
           className="mt-3"
@@ -378,20 +378,20 @@ export default function ExpensesScreen() {
                       borderRadius: 999,
                     }}
                   />
-                  <Text className="text-white">{item.category}</Text>
+                  <Text className="text-slate-100">{item.category}</Text>
                 </View>
-                {item.note ? <Text className="text-white/60 text-xs">{item.note}</Text> : null}
+                {item.note ? <Text className="text-slate-100/60 text-xs">{item.note}</Text> : null}
               </View>
               <View className="items-end gap-2">
-                <Text className="text-white font-medium">
-                  {item.type === "expense" ? "-" : "+"}${item.amount.toFixed(2)}
+                <Text className="text-slate-100 font-medium">
+                  {item.type === "expense" ? "-" : "+"}₹{item.amount.toFixed(2)}
                 </Text>
                 <View className="flex-row gap-2">
                   <Pressable onPress={() => openEdit(item)} className="rounded-lg border border-white/10 px-2 py-1">
-                    <Text className="text-xs text-white/80">Edit</Text>
+                    <Text className="text-xs text-slate-100/80">Edit</Text>
                   </Pressable>
                   <Pressable onPress={() => void onDelete(item.id)} className="rounded-lg border border-white/10 px-2 py-1">
-                    <Text className="text-xs text-white/80">Delete</Text>
+                    <Text className="text-xs text-slate-100/80">Delete</Text>
                   </Pressable>
                 </View>
               </View>
@@ -404,9 +404,9 @@ export default function ExpensesScreen() {
         <View className="absolute inset-0 bg-black/70 px-5 pt-24">
           <View className="rounded-2xl border border-white/10 bg-black p-4">
             <View className="flex-row items-center justify-between">
-              <Text className="text-white font-medium">Edit transaction</Text>
+              <Text className="text-slate-100 font-medium">Edit transaction</Text>
               <Pressable onPress={() => setEditing(null)} className="rounded-lg border border-white/10 px-2 py-1">
-                <Text className="text-xs text-white/80">Close</Text>
+                <Text className="text-xs text-slate-100/80">Close</Text>
               </Pressable>
             </View>
 
@@ -417,7 +417,7 @@ export default function ExpensesScreen() {
                   editType === "expense" ? "border-white/20 bg-white/10" : "border-white/10"
                 }`}
               >
-                <Text className="text-center text-xs text-white">Expense</Text>
+                <Text className="text-center text-xs text-slate-100">Expense</Text>
               </Pressable>
               <Pressable
                 onPress={() => setEditType("income")}
@@ -425,7 +425,7 @@ export default function ExpensesScreen() {
                   editType === "income" ? "border-white/20 bg-white/10" : "border-white/10"
                 }`}
               >
-                <Text className="text-center text-xs text-white">Income</Text>
+                <Text className="text-center text-xs text-slate-100">Income</Text>
               </Pressable>
             </View>
 
@@ -442,7 +442,7 @@ export default function ExpensesScreen() {
                     <View
                       style={{ backgroundColor: CATEGORY_COLORS[c], width: 8, height: 8, borderRadius: 999 }}
                     />
-                    <Text className="text-xs text-white">{c}</Text>
+                    <Text className="text-xs text-slate-100">{c}</Text>
                   </View>
                 </Pressable>
               ))}
@@ -453,14 +453,14 @@ export default function ExpensesScreen() {
                 value={editAmount}
                 onChangeText={setEditAmount}
                 keyboardType="decimal-pad"
-                className="flex-1 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white"
+                className="flex-1 rounded-xl border border-blue-500/50 bg-slate-950 p-4 shadow-md px-4 py-3 text-slate-100"
                 placeholder="Amount"
                 placeholderTextColor="rgba(255,255,255,0.4)"
               />
               <TextInput
                 value={editDate}
                 onChangeText={setEditDate}
-                className="flex-1 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white"
+                className="flex-1 rounded-xl border border-blue-500/50 bg-slate-950 p-4 shadow-md px-4 py-3 text-slate-100"
                 placeholder="YYYY-MM-DD"
                 placeholderTextColor="rgba(255,255,255,0.4)"
               />
@@ -468,7 +468,7 @@ export default function ExpensesScreen() {
             <TextInput
               value={editNote}
               onChangeText={setEditNote}
-              className="mt-2 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white"
+              className="mt-2 rounded-xl border border-blue-500/50 bg-slate-950 p-4 shadow-md px-4 py-3 text-slate-100"
               placeholder="Note (optional)"
               placeholderTextColor="rgba(255,255,255,0.4)"
             />

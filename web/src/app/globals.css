@@ -1,11 +1,13 @@
 @import "tailwindcss";
 
 :root {
-  --background: linear-gradient(135deg, #0a0a1a 0%, #0f0f2a 50%, #050a15 100%);
+  --background: linear-gradient(135deg, #050510 0%, #0a0a15 50%, #040608 100%);
   --foreground: #ffffff;
+  --secondary-text: #b0b0b0;
   --primary: #1e40af;
   --primary-dark: #1e3a8a;
-  --accent: #1e40af;
+  --accent: #00ffcc;
+  --accent-cyan: #1fffff;
   --success: #10b981;
   --warning: #f59e0b;
   --danger: #ef4444;
@@ -14,8 +16,10 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-secondary: var(--secondary-text);
   --color-primary: var(--primary);
   --color-accent: var(--accent);
+  --color-accent-cyan: var(--accent-cyan);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   
@@ -72,10 +76,10 @@
 
 @keyframes glow {
   0%, 100% {
-    box-shadow: 0 0 5px rgba(30, 64, 175, 0.3), 0 0 10px rgba(30, 64, 175, 0.1);
+    box-shadow: 0 0 5px rgba(0, 255, 204, 0.3), 0 0 10px rgba(0, 255, 204, 0.1);
   }
   50% {
-    box-shadow: 0 0 15px rgba(30, 64, 175, 0.5), 0 0 20px rgba(30, 64, 175, 0.2);
+    box-shadow: 0 0 15px rgba(0, 255, 204, 0.5), 0 0 20px rgba(0, 255, 204, 0.2);
   }
 }
 

@@ -69,11 +69,13 @@ export async function GET(req: NextRequest) {
       Array<{
         dow: number;
         expense: number | null;
+        income: number | null;
       }>
     >`
       SELECT
         EXTRACT(DOW FROM "date")::int as dow,
-        SUM(CASE WHEN "type" = 'expense' THEN "amount" ELSE 0 END) as expense
+        SUM(CASE WHEN "type" = 'expense' THEN "amount" ELSE 0 END) as expense,  
+        SUM(CASE WHEN "type" = 'income' THEN "amount" ELSE 0 END) as income     
       FROM "Expense"
       WHERE "date" >= ${weekStart} AND "date" < ${weekEnd}
       GROUP BY 1
@@ -103,6 +105,7 @@ export async function GET(req: NextRequest) {
       byDayOfWeek: byDow.map((x) => ({
         dow: x.dow, // 0=Sun..6=Sat (Postgres)
         expense: Number(x.expense ?? 0),
+        income: Number(x.income ?? 0),
       })),
     },
   });

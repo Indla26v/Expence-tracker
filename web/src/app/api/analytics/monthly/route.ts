@@ -51,6 +51,7 @@ export async function GET(req: NextRequest) {
       by: ["category"],
       where: { type: "expense", date: { gte: start, lt: end } },
       _sum: { amount: true },
+      _count: { _all: true },
       orderBy: { _sum: { amount: "desc" } },
     }),
   ]);
@@ -81,6 +82,7 @@ export async function GET(req: NextRequest) {
     byCategory: byCategory.map((c) => ({
       category: c.category,
       total: c._sum.amount ?? 0,
+      count: c._count._all,
     })),
     topCategories,
   });
