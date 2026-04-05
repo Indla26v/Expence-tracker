@@ -172,14 +172,14 @@ export default async function DashboardPage() {
             .sort((a, b) => new Date(b[0]).getTime() - new Date(a[0]).getTime())
             .map(([dateKey, dayItems]) => (
               <div key={dateKey} className="rounded-b-xl bg-blue-900/30 border border-blue-500/20 overflow-hidden shadow-sm my-2">
-                <div className="bg-blue-900/40 px-4 py-2 border-b border-blue-500/20">
+                <div className="bg-blue-900/40 px-6 py-2 border-b border-blue-500/20">
                   <h3 className="text-xs font-semibold text-blue-200 uppercase tracking-wider">{dateKey}</h3>
                 </div>
                 <div className="divide-y divide-white/5">
                   {(dayItems as typeof recent).map((e) => (
                     <div
                       key={e.id}
-                      className="flex items-center justify-between gap-3 px-4 py-3 hover:bg-white/5 transition-colors group"
+                      className="flex items-center justify-between gap-3 px-6 py-4 hover:bg-white/5 transition-colors group"
                     >
                       <div className="min-w-0">
                         <div className="truncate text-sm font-medium text-white group-hover:text-cyan-200 transition-colors">
