@@ -172,7 +172,7 @@ export default async function DashboardPage() {
             .sort((a, b) => new Date(b[0]).getTime() - new Date(a[0]).getTime())
             .map(([dateKey, dayItems]) => (
               <div key={dateKey} className="rounded-b-xl bg-blue-900/30 border border-blue-500/20 overflow-hidden shadow-sm my-2">
-                <div className="bg-blue-900/40 px-6 py-2 border-b border-blue-500/20">
+                <div className="bg-blue-900/40 px-6 py-6 border-b border-blue-500/20">
                   <h3 className="text-xs font-semibold text-blue-200 uppercase tracking-wider">{dateKey}</h3>
                 </div>
                 <div className="divide-y divide-white/5">
@@ -194,7 +194,7 @@ export default async function DashboardPage() {
                           </span>
                           {e.note ? <span className="text-white/60 group-hover:text-white/70 transition-colors"> — {e.note}</span> : null}
                         </div>
-                        <div className="text-xs text-white/60 group-hover:text-white/80 mt-1 transition-colors pl-[1.125rem]">
+                        <div className="text-xs text-white/60 group-hover:text-white/80 mt-1.5 transition-colors pl-[1.125rem]">
                           {format(new Date(e.date), "HH:mm")} • {e.type}
                         </div>
                       </div>
