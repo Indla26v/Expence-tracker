@@ -162,7 +162,7 @@ export default function AnalyticsPage() {
         </div>
       </div>
 
-      <div className="flex flex-1 flex-col gap-6 min-h-0 pb-6">
+      <div className="flex flex-1 flex-col gap-6 min-h-0 pb-6 overflow-y-auto scrollbar-thin scrollbar-thumb-blue-600/50 scrollbar-track-transparent pr-2">
         {/* ROW 1: Controls card AND 'Spending by category' / 'Today by hour' Pie/Bar Chart */}
         <div className="flex flex-col lg:flex-row gap-6">
           {/* Left: Controls Card */}
