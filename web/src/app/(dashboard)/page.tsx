@@ -160,29 +160,44 @@ export default async function DashboardPage() {
               No transactions yet. Start by adding an expense!
             </div>
           ) : (
-            recent.map((e, idx) => (
-              <div 
-                key={e.id} 
-                className="flex items-center justify-between px-6 py-3 transition-all duration-300 hover:bg-white/5 group"
-                style={{
-                  animation: `slideUp 0.5s cubic-bezier(0.34,1.56,0.64,1) ${0.1 + idx * 0.05}s backwards`
-                }}
-              >
-                <div className="min-w-0">
-                  <div className="truncate text-sm font-medium text-white group-hover:text-cyan-200 transition-colors">
-                    {e.category}
-                    {e.note ? <span className="text-white/50 group-hover:text-white/70"> — {e.note}</span> : null}
-                  </div>
-                  <div className="text-xs text-white/40 group-hover:text-white/60 transition-colors">
-                    {format(e.date, "MMM d, yyyy")} • {e.type}
-                  </div>
+            Object.entries(
+              recent.reduce((acc, item) => {
+                const dateKey = format(new Date(item.date), "MMM d, yyyy");
+                if (!acc[dateKey]) acc[dateKey] = [];
+                acc[dateKey].push(item);
+                return acc;
+              }, {} as Record<string, typeof recent>)
+            )
+            .sort((a, b) => new Date(b[0]).getTime() - new Date(a[0]).getTime())
+            .map(([dateKey, dayItems]) => (
+              <div key={dateKey} className="rounded-b-xl bg-blue-900/30 border border-blue-500/20 overflow-hidden shadow-sm my-2">
+                <div className="bg-blue-900/40 px-4 py-2 border-b border-blue-500/20">
+                  <h3 className="text-xs font-semibold text-blue-200 uppercase tracking-wider">{dateKey}</h3>
                 </div>
-                <div className={`shrink-0 text-sm font-bold rounded-lg px-3 py-1 ${
-                  e.type === "expense"
-                    ? "text-red-500 bg-red-50 dark:text-red-300 dark:bg-red-500/10"
-                    : "text-emerald-500 bg-emerald-50 dark:text-emerald-300 dark:bg-emerald-500/10"
-                } transition-all group-hover:shadow-sm dark:group-hover:shadow-lg`}>
-                  {e.type === "expense" ? "-" : "+"}₹{e.amount.toFixed(2)}
+                <div className="divide-y divide-white/5">
+                  {dayItems.map((e) => (
+                    <div 
+                      key={e.id} 
+                      className="flex items-center justify-between px-6 py-3 transition-all duration-300 hover:bg-white/5 group"
+                    >
+                      <div className="min-w-0">
+                        <div className="truncate text-sm font-medium text-white group-hover:text-cyan-200 transition-colors">
+                          {e.category}
+                          {e.note ? <span className="text-white/50 group-hover:text-white/70"> — {e.note}</span> : null}
+                        </div>
+                        <div className="text-xs text-white/40 group-hover:text-white/60 transition-colors">
+                          {e.type}
+                        </div>
+                      </div>
+                      <div className={`shrink-0 text-sm font-bold rounded-lg px-3 py-1 ${
+                        e.type === "expense"
+                          ? "text-red-500 bg-red-50 dark:text-red-300 dark:bg-red-500/10"
+                          : "text-emerald-500 bg-emerald-50 dark:text-emerald-300 dark:bg-emerald-500/10"
+                      } transition-all group-hover:shadow-sm dark:group-hover:shadow-lg`}>
+                        {e.type === "expense" ? "-" : "+"}₹{e.amount.toFixed(2)}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             ))
