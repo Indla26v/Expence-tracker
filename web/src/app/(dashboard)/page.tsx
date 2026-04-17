@@ -2,23 +2,20 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { format } from "date-fns";
 import { CATEGORY_COLORS, type Category } from "@/lib/categories";
-
-function utcStartOfDay(d: Date) {
-  return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), 0, 0, 0, 0));
-}
+import { toIST, startOfDayIST, startOfMonthIST, fromIST } from "@/lib/date";
 
 export default async function DashboardPage() {
   const now = new Date();
+  const nowIst = toIST(now);
 
-  const todayStart = utcStartOfDay(now);
-  const tomorrowStart = new Date(todayStart);
-  tomorrowStart.setUTCDate(tomorrowStart.getUTCDate() + 1);
+  const todayStart = startOfDayIST(now);
+  const tomorrowStart = new Date(todayStart.getTime() + 86400000);
 
-  const monthStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1, 0, 0, 0, 0));
-  const nextMonthStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1, 0, 0, 0, 0));
+  const monthStart = startOfMonthIST(now);
+  const nextMonthStart = new Date(Date.UTC(nowIst.getUTCFullYear(), nowIst.getUTCMonth() + 1, 1) - 19800000);
 
-  const month = now.getUTCMonth() + 1;
-  const year = now.getUTCFullYear();
+  const month = nowIst.getUTCMonth() + 1;
+  const year = nowIst.getUTCFullYear();
 
   let todayTotals: any = { _sum: { amount: null } };
   let monthTotals: any = { _sum: { amount: null } };
@@ -93,7 +90,7 @@ export default async function DashboardPage() {
           <h1 className="bg-gradient-to-r from-cyan-400 via-cyan-300 to-cyan-400 bg-clip-text text-3xl font-bold text-transparent">
             Dashboard
           </h1>
-          <p className="mt-1 text-sm text-cyan-400/60">{format(now, "EEEE, MMM d")}</p>
+          <p className="mt-1 text-sm text-cyan-400/60">{format(nowIst, "EEEE, MMM d")}</p>
         </div>
         <Link
           href="/expenses"
@@ -163,7 +160,7 @@ export default async function DashboardPage() {
           ) : (
             Object.entries(
               recent.reduce((acc, item) => {
-                const dateKey = format(new Date(item.date), "MMM d, yyyy");
+                const dateKey = format(toIST(new Date(item.date)), "MMM d, yyyy");
                 if (!acc[dateKey]) acc[dateKey] = [];
                 acc[dateKey].push(item);
                 return acc;
@@ -196,7 +193,7 @@ export default async function DashboardPage() {
                         </div>
                         <div className="text-xs text-white/60 group-hover:text-white/80 mt-[0.3125rem] transition-colors flex items-center gap-1">
                           <div className="w-[1.125rem]" />
-                          {format(new Date(e.date), "HH:mm")} • {e.type}
+                          {format(toIST(new Date(e.date)), "HH:mm")} • {e.type}
                         </div>
                       </div>
                       <div className="flex items-center gap-4">

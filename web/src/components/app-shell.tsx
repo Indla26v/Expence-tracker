@@ -1,7 +1,6 @@
 "use client";
 
-"use client";
-
+import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { BarChart3, CreditCard, Home, Moon, Plus, Settings } from "lucide-react";
@@ -15,8 +14,30 @@ const navItems = [
   { href: "/settings", label: "Settings", icon: Settings },
 ] as const;
 
+const INACTIVITY_TIMEOUT = 30 * 60 * 1000; // 30 minutes
+
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const logoutTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    const resetTimer = () => {
+      if (logoutTimerRef.current) clearTimeout(logoutTimerRef.current);
+      logoutTimerRef.current = setTimeout(() => {
+        void signOut({ callbackUrl: "/login" });
+      }, INACTIVITY_TIMEOUT);
+    };
+
+    resetTimer();
+
+    const events = ["mousedown", "mousemove", "keydown", "scroll", "touchstart"];
+    events.forEach((event) => document.addEventListener(event, resetTimer));
+
+    return () => {
+      if (logoutTimerRef.current) clearTimeout(logoutTimerRef.current);
+      events.forEach((event) => document.removeEventListener(event, resetTimer));
+    };
+  }, []);
 
   return (
     <div className="min-h-dvh bg-slate-950 text-white relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #050510 0%, #0a0a15 50%, #040608 100%)' }}>

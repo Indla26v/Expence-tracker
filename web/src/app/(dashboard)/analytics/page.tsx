@@ -54,9 +54,10 @@ export default function AnalyticsPage() {
   const [error, setError] = useState<string | null>(null);
 
   const qs = useMemo(() => {
-    if (view === "monthly") return `month=${month}&year=${year}`;
-    if (view === "yearly") return `year=${year}`;
-    return `date=${encodeURIComponent(date)}`;
+    const tzOffset = -330; // Force IST
+    if (view === "monthly") return `month=${month}&year=${year}&tzOffset=${tzOffset}`;
+    if (view === "yearly") return `year=${year}&tzOffset=${tzOffset}`;
+    return `date=${encodeURIComponent(date)}&tzOffset=${tzOffset}`;
   }, [month, year, view, date]);
 
   useEffect(() => {

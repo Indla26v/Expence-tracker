@@ -12,67 +12,96 @@ export async function GET(req: NextRequest) {
   if (authResult instanceof NextResponse) return authResult;
 
   const { searchParams } = new URL(req.url);
+  const tzOffsetStr = searchParams.get("tzOffset");
+  const tzOffset = tzOffsetStr ? Number.parseInt(tzOffsetStr, 10) : -330;
+
   const parsed = querySchema.safeParse({ year: searchParams.get("year") });
   if (!parsed.success) {
     return NextResponse.json({ error: "Invalid query" }, { status: 400 });
   }
 
   const { year } = parsed.data;
-  const start = new Date(Date.UTC(year, 0, 1, 0, 0, 0, 0));
-  const end = new Date(Date.UTC(year + 1, 0, 1, 0, 0, 0, 0));
-  const prevStart = new Date(Date.UTC(year - 1, 0, 1, 0, 0, 0, 0));
+  
+  const localStart = Date.UTC(year, 0, 1, 0, 0, 0, 0);
+  const localEnd = Date.UTC(year + 1, 0, 1, 0, 0, 0, 0);
+  const start = new Date(localStart + tzOffset * 60000);
+  const end = new Date(localEnd + tzOffset * 60000);
+  
+  const prevLocalStart = Date.UTC(year - 1, 0, 1, 0, 0, 0, 0);
+  const prevStart = new Date(prevLocalStart + tzOffset * 60000);
   const prevEnd = start;
 
-  const [byMonth, byMonthPrev, byCategory, totals] = await Promise.all([
-    prisma.$queryRaw<
-      Array<{
-        month: Date;
-        expense: number | null;
-        income: number | null;
-      }>
-    >`
-      SELECT
-        date_trunc('month', "date") as month,
-        SUM(CASE WHEN "type" = 'expense' THEN "amount" ELSE 0 END) as expense,
-        SUM(CASE WHEN "type" = 'income' THEN "amount" ELSE 0 END) as income
-      FROM "Expense"
-      WHERE "date" >= ${start} AND "date" < ${end}
-      GROUP BY 1
-      ORDER BY 1 ASC
-    `,
-    prisma.$queryRaw<
-      Array<{
-        month: Date;
-        expense: number | null;
-        income: number | null;
-      }>
-    >`
-      SELECT
-        date_trunc('month', "date") as month,
-        SUM(CASE WHEN "type" = 'expense' THEN "amount" ELSE 0 END) as expense,
-        SUM(CASE WHEN "type" = 'income' THEN "amount" ELSE 0 END) as income
-      FROM "Expense"
-      WHERE "date" >= ${prevStart} AND "date" < ${prevEnd}
-      GROUP BY 1
-      ORDER BY 1 ASC
-    `,
-    prisma.expense.groupBy({
-      by: ["category"],
-      where: { type: "expense", date: { gte: start, lt: end } },
-      _sum: { amount: true },
-      _count: { _all: true },
-      orderBy: { _sum: { amount: "desc" } },
-    }),
-    prisma.expense.groupBy({
-      by: ["type"],
+  const [expenses, prevExpenses] = await Promise.all([
+    prisma.expense.findMany({
       where: { date: { gte: start, lt: end } },
-      _sum: { amount: true },
+      select: { amount: true, type: true, date: true, category: true },
+    }),
+    prisma.expense.findMany({
+      where: { date: { gte: prevStart, lt: prevEnd } },
+      select: { amount: true, type: true, date: true },
     }),
   ]);
 
-  const totalExpense =
-    totals.find((t) => t.type === "expense")?._sum.amount ?? 0;
-  const totalIncome = totals.find((t) => t.type === "income")?._sum.amount ?? 0;
+  const monthMap = new Map<number, { income: number; expense: number }>();
+  const prevMonthMap = new Map<number, { income: number; expense: number }>();
+  const categoryMap = new Map<string, { total: number; count: number }>();
+  let totalIncome = 0;
+  let totalExpense = 0;
+
+  for (const e of expenses) {
+    const localDate = new Date(e.date.getTime() - tzOffset * 60000);
+    const m = localDate.getUTCMonth();
+    
+    if (e.type === "expense") {
+      totalExpense += e.amount;
+      const cat = categoryMap.get(e.category) || { total: 0, count: 0 };
+      cat.total += e.amount;
+      cat.count += 1;
+      categoryMap.set(e.category, cat);
+    } else {
+      totalIncome += e.amount;
+    }
+
+    const mData = monthMap.get(m) || { income: 0, expense: 0 };
+    if (e.type === "expense") mData.expense += e.amount;
+    else mData.income += e.amount;
+    monthMap.set(m, mData);
+  }
+
+  for (const e of prevExpenses) {
+    const localDate = new Date(e.date.getTime() - tzOffset * 60000);
+    const m = localDate.getUTCMonth();
+    const mData = prevMonthMap.get(m) || { income: 0, expense: 0 };
+    if (e.type === "expense") mData.expense += e.amount;
+    else mData.income += e.amount;
+    prevMonthMap.set(m, mData);
+  }
+
+  const byMonth = Array.from({ length: 12 }, (_, i) => {
+    const d = monthMap.get(i) || { income: 0, expense: 0 };
+    return {
+      month: new Date(Date.UTC(year, i, 1)),
+      income: d.income,
+      expense: d.expense,
+    };
+  });
+
+  const byMonthPrev = Array.from({ length: 12 }, (_, i) => {
+    const d = prevMonthMap.get(i) || { income: 0, expense: 0 };
+    return {
+      month: new Date(Date.UTC(year - 1, i, 1)),
+      income: d.income,
+      expense: d.expense,
+    };
+  });
+
+  const byCategory = Array.from(categoryMap.entries())
+    .map(([category, stats]) => ({
+      category,
+      total: stats.total,
+      count: stats.count,
+    }))
+    .sort((a, b) => b.total - a.total);
 
   return NextResponse.json({
     year,
@@ -98,8 +127,8 @@ export async function GET(req: NextRequest) {
     },
     byCategory: byCategory.map((c) => ({
       category: c.category,
-      total: c._sum.amount ?? 0,
-      count: c._count._all,
+      total: c.total,
+      count: c.count,
     })),
   });
 }

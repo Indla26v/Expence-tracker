@@ -25,6 +25,9 @@ export async function GET(req: NextRequest) {
   if (authResult instanceof NextResponse) return authResult;
 
   const { searchParams } = new URL(req.url);
+  const tzOffsetStr = searchParams.get("tzOffset");
+  const tzOffset = tzOffsetStr ? Number.parseInt(tzOffsetStr, 10) : -330;
+
   const parsed = querySchema.safeParse({ date: searchParams.get("date") });
   if (!parsed.success) {
     return NextResponse.json({ error: "Invalid query" }, { status: 400 });
@@ -35,57 +38,69 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Invalid date" }, { status: 400 });
   }
 
-  const start = startOfUtcDay(d);
-  const end = new Date(start);
-  end.setUTCDate(end.getUTCDate() + 1);
+  // d is e.g. "2026-04-17" in UTC (from the frontend's string).
+  // The local boundaries for this given day
+  const localDayStart = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), 0, 0, 0, 0);
+  const localDayEnd = localDayStart + 86400000;
+  const start = new Date(localDayStart + tzOffset * 60000);
+  const end = new Date(localDayEnd + tzOffset * 60000);
 
-  const weekStart = startOfUtcWeekMonday(d);
-  const weekEnd = new Date(weekStart);
-  weekEnd.setUTCDate(weekEnd.getUTCDate() + 7);
+  // find start of week (Monday)
+  const jsDow = d.getUTCDay();
+  const diffToMonday = (jsDow + 6) % 7;
+  const localWeekStart = localDayStart - diffToMonday * 86400000;
+  const localWeekEnd = localWeekStart + 7 * 86400000;
+  const weekStart = new Date(localWeekStart + tzOffset * 60000);
+  const weekEnd = new Date(localWeekEnd + tzOffset * 60000);
 
-  const [totals, byHour, byDow] = await Promise.all([
-    prisma.expense.groupBy({
-      by: ["type"],
+  const [expenses, weekExpenses] = await Promise.all([
+    prisma.expense.findMany({
       where: { date: { gte: start, lt: end } },
-      _sum: { amount: true },
+      select: { amount: true, type: true, date: true },
     }),
-    prisma.$queryRaw<
-      Array<{
-        hour: number;
-        expense: number | null;
-        income: number | null;
-      }>
-    >`
-      SELECT
-        EXTRACT(HOUR FROM "date")::int as hour,
-        SUM(CASE WHEN "type" = 'expense' THEN "amount" ELSE 0 END) as expense,
-        SUM(CASE WHEN "type" = 'income' THEN "amount" ELSE 0 END) as income
-      FROM "Expense"
-      WHERE "date" >= ${start} AND "date" < ${end}
-      GROUP BY 1
-      ORDER BY 1 ASC
-    `,
-    prisma.$queryRaw<
-      Array<{
-        dow: number;
-        expense: number | null;
-        income: number | null;
-      }>
-    >`
-      SELECT
-        EXTRACT(DOW FROM "date")::int as dow,
-        SUM(CASE WHEN "type" = 'expense' THEN "amount" ELSE 0 END) as expense,  
-        SUM(CASE WHEN "type" = 'income' THEN "amount" ELSE 0 END) as income     
-      FROM "Expense"
-      WHERE "date" >= ${weekStart} AND "date" < ${weekEnd}
-      GROUP BY 1
-      ORDER BY 1 ASC
-    `,
+    prisma.expense.findMany({
+      where: { date: { gte: weekStart, lt: weekEnd } },
+      select: { amount: true, type: true, date: true },
+    }),
   ]);
 
-  const totalExpense =
-    totals.find((t) => t.type === "expense")?._sum.amount ?? 0;
-  const totalIncome = totals.find((t) => t.type === "income")?._sum.amount ?? 0;
+  let totalIncome = 0;
+  let totalExpense = 0;
+  const hourMap = new Map<number, { income: number; expense: number }>();
+  const dowMap = new Map<number, { income: number; expense: number }>();
+
+  for (const e of expenses) {
+    const localDate = new Date(e.date.getTime() - tzOffset * 60000);
+    const hour = localDate.getUTCHours();
+    
+    if (e.type === "expense") totalExpense += e.amount;
+    else totalIncome += e.amount;
+
+    const h = hourMap.get(hour) || { income: 0, expense: 0 };
+    if (e.type === "expense") h.expense += e.amount;
+    else h.income += e.amount;
+    hourMap.set(hour, h);
+  }
+
+  for (const e of weekExpenses) {
+    const localDate = new Date(e.date.getTime() - tzOffset * 60000);
+    const dow = localDate.getUTCDay(); // 0=Sun..6=Sat
+    
+    const d = dowMap.get(dow) || { income: 0, expense: 0 };
+    if (e.type === "expense") d.expense += e.amount;
+    else d.income += e.amount;
+    dowMap.set(dow, d);
+  }
+
+  const byHour = Array.from(hourMap.entries())
+    .map(([hour, totals]) => ({ hour, ...totals }))
+    .sort((a, b) => a.hour - b.hour);
+
+  const byDayOfWeek = Array.from({ length: 7 }, (_, i) => {
+    const dow = i;
+    const totals = dowMap.get(dow) || { income: 0, expense: 0 };
+    return { dow, ...totals };
+  });
 
   return NextResponse.json({
     date: start,
@@ -95,18 +110,10 @@ export async function GET(req: NextRequest) {
       expense: totalExpense,
       net: totalIncome - totalExpense,
     },
-    byHour: byHour.map((h) => ({
-      hour: h.hour,
-      income: Number(h.income ?? 0),
-      expense: Number(h.expense ?? 0),
-    })),
+    byHour,
     week: {
       range: { start: weekStart, end: weekEnd },
-      byDayOfWeek: byDow.map((x) => ({
-        dow: x.dow, // 0=Sun..6=Sat (Postgres)
-        expense: Number(x.expense ?? 0),
-        income: Number(x.income ?? 0),
-      })),
+      byDayOfWeek,
     },
   });
 }

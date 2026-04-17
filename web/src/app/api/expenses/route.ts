@@ -42,10 +42,12 @@ export async function GET(req: NextRequest) {
   const dateFilter: { gte?: Date; lt?: Date } = {};
 
   if (year && month && month >= 1 && month <= 12) {
-    const start = new Date(Date.UTC(year, month - 1, 1, 0, 0, 0, 0));
-    const end = new Date(Date.UTC(year, month, 1, 0, 0, 0, 0));
-    dateFilter.gte = start;
-    dateFilter.lt = end;
+    const tzOffset = -330; // IST fallback offset
+    const localStart = Date.UTC(year, month - 1, 1, 0, 0, 0, 0);
+    const localEnd = Date.UTC(year, month, 1, 0, 0, 0, 0);
+    
+    dateFilter.gte = new Date(localStart + tzOffset * 60000);
+    dateFilter.lt = new Date(localEnd + tzOffset * 60000);
   } else {
     if (from) dateFilter.gte = from;
     if (to) dateFilter.lt = to;

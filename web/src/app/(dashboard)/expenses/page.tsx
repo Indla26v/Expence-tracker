@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { addDays, format, startOfMonth, startOfWeek } from "date-fns";
+import { addDays, format, startOfWeek } from "date-fns";
 import { CATEGORIES, CATEGORY_COLORS, type Category } from "@/lib/categories";
+import { toIST, startOfMonthIST, IST_OFFSET_MS } from "@/lib/date";
 
 type Expense = {
   id: string;
@@ -14,15 +15,15 @@ type Expense = {
 };
 
 export default function ExpensesPage() {
-  const now = new Date();
-  const [month, setMonth] = useState(now.getUTCMonth() + 1);
-  const [year, setYear] = useState(now.getUTCFullYear());
+  const nowIst = toIST(new Date());
+  const [month, setMonth] = useState(nowIst.getUTCMonth() + 1);
+  const [year, setYear] = useState(nowIst.getUTCFullYear());
   const [q, setQ] = useState("");
   const [rangePreset, setRangePreset] = useState<
     "month" | "week" | "year" | "custom"
   >("month");
-  const [from, setFrom] = useState<string>(() => format(now, "yyyy-MM-dd"));
-  const [to, setTo] = useState<string>(() => format(addDays(now, 1), "yyyy-MM-dd"));
+  const [from, setFrom] = useState<string>(() => format(nowIst, "yyyy-MM-dd"));
+  const [to, setTo] = useState<string>(() => format(addDays(nowIst, 1), "yyyy-MM-dd"));
 
   const [items, setItems] = useState<Expense[]>([]);
   const [loading, setLoading] = useState(true);
@@ -31,7 +32,7 @@ export default function ExpensesPage() {
   const [amount, setAmount] = useState("");
   const [type, setType] = useState<Expense["type"]>("expense");
   const [category, setCategory] = useState<(typeof CATEGORIES)[number]>("Lunch");
-  const [date, setDate] = useState(() => format(new Date(), "yyyy-MM-dd'T'HH:mm"));
+  const [date, setDate] = useState(() => format(nowIst, "yyyy-MM-dd'T'HH:mm"));
   const [note, setNote] = useState("");
   const [saving, setSaving] = useState(false);
 
@@ -39,28 +40,27 @@ export default function ExpensesPage() {
   const [editAmount, setEditAmount] = useState("");
   const [editType, setEditType] = useState<Expense["type"]>("expense");
   const [editCategory, setEditCategory] = useState<(typeof CATEGORIES)[number]>("Lunch");
-  const [editDate, setEditDate] = useState(() => format(new Date(), "yyyy-MM-dd'T'HH:mm"));
+  const [editDate, setEditDate] = useState(() => format(nowIst, "yyyy-MM-dd'T'HH:mm"));
   const [editNote, setEditNote] = useState("");
   const [editSaving, setEditSaving] = useState(false);
 
   useEffect(() => {
-    const base = new Date(Date.UTC(year, month - 1, 1));
+    const baseIst = new Date(Date.UTC(year, month - 1, 1));
     if (rangePreset === "month") {
-      const start = startOfMonth(base);
+      const start = baseIst;
       setFrom(format(start, "yyyy-MM-dd"));
       setTo(format(addDays(addDays(start, 32), -((addDays(start, 32).getUTCDate() - 1))), "yyyy-MM-dd"));
-      // to is exclusive-ish for API, but UI uses date input; we’ll send `to` as next day below.
     }
     if (rangePreset === "year") {
       setFrom(`${year}-01-01`);
       setTo(`${year + 1}-01-01`);
     }
     if (rangePreset === "week") {
-      const start = startOfWeek(new Date(), { weekStartsOn: 1 });
+      const start = startOfWeek(nowIst, { weekStartsOn: 1 });
       setFrom(format(start, "yyyy-MM-dd"));
       setTo(format(addDays(start, 7), "yyyy-MM-dd"));
     }
-  }, [rangePreset, month, year]);
+  }, [rangePreset, month, year, nowIst]);
 
   const queryString = useMemo(() => {
     const sp = new URLSearchParams();
@@ -108,7 +108,7 @@ export default function ExpensesPage() {
           amount: Number(amount),
           type,
           category,
-          date,
+          date: new Date(new Date(date + "Z").getTime() - IST_OFFSET_MS).toISOString(),
           note: note.trim() ? note.trim() : null,
         }),
       });
@@ -142,7 +142,7 @@ export default function ExpensesPage() {
     setEditAmount(String(e.amount));
     setEditType(e.type);
     setEditCategory((CATEGORIES.includes(e.category as Category) ? (e.category as Category) : "Other") as Category);
-    setEditDate(format(new Date(e.date), "yyyy-MM-dd'T'HH:mm"));
+    setEditDate(format(toIST(new Date(e.date)), "yyyy-MM-dd'T'HH:mm"));
     setEditNote(e.note ?? "");
   }
 
@@ -158,7 +158,7 @@ export default function ExpensesPage() {
           amount: Number(editAmount),
           type: editType,
           category: editCategory,
-          date: editDate,
+          date: new Date(new Date(editDate + "Z").getTime() - IST_OFFSET_MS).toISOString(),
           note: editNote.trim() ? editNote.trim() : null,
         }),
       });
@@ -178,7 +178,7 @@ export default function ExpensesPage() {
   function exportCsv() {
     const header = ["date", "type", "category", "amount", "note"];
     const rows = items.map((e) => [
-      format(new Date(e.date), "yyyy-MM-dd"),
+      format(toIST(new Date(e.date)), "yyyy-MM-dd HH:mm"),
       e.type,
       e.category,
       e.amount.toFixed(2),
