@@ -49,10 +49,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <div className="absolute bottom-0 left-1/3 w-[25rem] h-[25rem] bg-blue-800/10 rounded-full blur-[100px] mix-blend-screen" />
       </div>
 
-      <header className="sticky top-0 z-40 border-b border-white/[0.1] bg-[#0a0a0f]/70 backdrop-blur-[12px] shadow-sm">
+      <header className="hidden md:flex sticky top-0 z-40 border-b border-white/[0.1] bg-[#0a0a0f]/70 backdrop-blur-[12px] shadow-sm">
         <div className="mx-auto flex w-full items-center justify-between max-w-5xl px-6 py-4">
           
-          <Link href="/" className="flex items-center gap-3 group relative z-50" onClick={() => setMobileMenuOpen(false)}>
+          <Link href="/" className="flex items-center gap-3 group relative z-50">
             <div className="w-10 h-10 rounded-[14px] bg-gradient-to-br from-cyan-400 to-emerald-500 p-[1px] shadow-[0_0_20px_rgba(6,182,212,0.3)] transition-transform duration-300 group-hover:scale-105 group-hover:shadow-[0_0_30px_rgba(6,182,212,0.5)]">
               <div className="w-full h-full bg-black/40 backdrop-blur-sm rounded-[13px] flex items-center justify-center">
                 <Wallet className="h-5 w-5 text-cyan-300 drop-shadow-[0_0_4px_rgba(6,182,212,0.8)]" />
@@ -81,7 +81,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             })}
           </nav>
 
-          <div className="hidden md:flex items-center gap-4">
+          <div className="flex items-center gap-4">
             <button
               type="button"
               onClick={() => void signOut({ callbackUrl: "/login" })}
@@ -90,65 +90,53 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               Sign out
             </button>
           </div>
-
-          <button
-            type="button"
-            className="md:hidden relative z-50 rounded-full p-2 text-white/70 hover:bg-white/10 transition-colors"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          >
-            {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-          </button>
         </div>
-
-        {/* Mobile Menu */}
-        {mobileMenuOpen && (
-          <div className="absolute top-[72px] left-0 right-0 bg-[#0a0a0f]/95 backdrop-blur-xl border-b border-white/10 shadow-2xl p-6 md:hidden animate-[slideDown_0.3s_ease-out]">
-            <nav className="flex flex-col gap-2">
-              {navItems.map(({ href, label, icon: Icon }) => {
-                const active = pathname === href;
-                return (
-                  <Link
-                    key={href}
-                    href={href}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className={clsx(
-                      "flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold tracking-wide transition-all",
-                      active
-                        ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 shadow-[0_0_15px_rgba(6,182,212,0.2)]"
-                        : "text-white/70 hover:bg-white/5 hover:text-cyan-400"
-                    )}
-                  >
-                    <Icon className="h-5 w-5" />
-                    {label}
-                  </Link>
-                );
-              })}
-              <div className="mt-4 pt-4 border-t border-white/10">
-                <button
-                  type="button"
-                  onClick={() => void signOut({ callbackUrl: "/login" })}
-                  className="w-full flex items-center justify-center rounded-xl bg-red-500/10 border border-red-500/20 px-4 py-3 text-sm font-semibold text-rose-400 hover:bg-red-500/20 hover:shadow-[0_0_15px_rgba(244,63,94,0.25)] transition-all"
-                >
-                  Sign out
-                </button>
-              </div>
-            </nav>
-          </div>
-        )}
       </header>
 
       <div className="relative z-10 mx-auto w-full max-w-5xl px-4 pb-12 pt-8">
         {children}
       </div>
 
-      {/* Floating Action Button */}
+      {/* Floating Action Button - Mobile adjusted */}
       <Link
         href="/expenses"
-        className="fixed bottom-6 right-6 z-50 flex h-[3.25rem] w-[3.25rem] items-center justify-center rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 text-slate-950 shadow-[0_0_20px_rgba(6,182,212,0.4)] transition-all duration-300 hover:scale-105 hover:shadow-[0_0_30px_rgba(6,182,212,0.6)] active:scale-95"
+        className="fixed z-50 flex h-[3.25rem] w-[3.25rem] items-center justify-center rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 text-slate-950 shadow-[0_0_20px_rgba(6,182,212,0.4)] transition-all duration-300 hover:scale-105 hover:shadow-[0_0_30px_rgba(6,182,212,0.6)] active:scale-95 right-6 bottom-24 md:bottom-6"
         aria-label="Quick add"
       >
         <Plus className="h-6 w-6" />
       </Link>
+
+      {/* Mobile Fixed Bottom Navigation Bar */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 rounded-t-[32px] border-t border-white/5 bg-[rgba(20,20,20,0.7)] backdrop-blur-[20px] shadow-[0_-10px_40px_rgba(0,0,0,0.5)] pb-[env(safe-area-inset-bottom)]">
+        <div className="flex items-center justify-around px-2 py-2">
+          {navItems.map(({ href, label, icon: Icon }) => {
+            const active = pathname === href;
+            return (
+              <Link
+                key={href}
+                href={href}
+                className={clsx(
+                  "group relative flex flex-col items-center justify-center gap-1.5 w-16 h-14 rounded-2xl transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)]",
+                  active ? "text-cyan-300" : "text-white/50 hover:text-white/90 hover:bg-white/5"
+                )}
+              >
+                {/* Active Indicator Glow */}
+                <div
+                  className={clsx(
+                    "absolute -top-2 w-8 h-1 rounded-b-full transition-all duration-500",
+                    active ? "bg-cyan-400 shadow-[0_0_12px_rgba(6,182,212,0.8)] opacity-100 scale-100" : "bg-transparent opacity-0 scale-0"
+                  )}
+                />
+                
+                <Icon className={clsx("transition-transform duration-500", active ? "h-6 w-6 scale-110 drop-shadow-[0_0_8px_rgba(6,182,212,0.5)]" : "h-5 w-5 group-hover:scale-110")} />
+                <span className={clsx("text-[10px] font-semibold tracking-wide transition-all duration-500", active ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2 absolute bottom-0 pointer-events-none")}>
+                  {label}
+                </span>
+              </Link>
+            );
+          })}
+        </div>
+      </nav>
     </div>
   );
 }
