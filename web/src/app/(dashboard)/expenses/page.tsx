@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { addDays, format, startOfWeek } from "date-fns";
+import { format } from "date-fns";
 import { CATEGORIES, CATEGORY_COLORS, type Category } from "@/lib/categories";
-import { toIST, startOfMonthIST, IST_OFFSET_MS } from "@/lib/date";
+import { formatIST, parseIST } from "@/lib/date";
 import { TransactionActions } from "@/components/transaction-actions";
 
 type Expense = {
@@ -16,15 +16,12 @@ type Expense = {
 };
 
 export default function ExpensesPage() {
-  const nowIst = toIST(new Date());
-  const [month, setMonth] = useState(nowIst.getUTCMonth() + 1);
-  const [year, setYear] = useState(nowIst.getUTCFullYear());
+  const currentMonthStr = formatIST(new Date(), "MM");
+  const currentYearStr = formatIST(new Date(), "yyyy");
+  const [month, setMonth] = useState(parseInt(currentMonthStr, 10));
+  const [year, setYear] = useState(parseInt(currentYearStr, 10));
   const [q, setQ] = useState("");
-  const [rangePreset, setRangePreset] = useState<
-    "month" | "week" | "year" | "custom"
-  >("month");
-  const [from, setFrom] = useState<string>(() => format(nowIst, "yyyy-MM-dd"));
-  const [to, setTo] = useState<string>(() => format(addDays(nowIst, 1), "yyyy-MM-dd"));
+  const [overlayDate, setOverlayDate] = useState("");
 
   const [items, setItems] = useState<Expense[]>([]);
   const [loading, setLoading] = useState(true);
@@ -33,7 +30,7 @@ export default function ExpensesPage() {
   const [amount, setAmount] = useState("");
   const [type, setType] = useState<Expense["type"]>("expense");
   const [category, setCategory] = useState<(typeof CATEGORIES)[number]>("Lunch");
-  const [date, setDate] = useState(() => format(nowIst, "yyyy-MM-dd'T'HH:mm"));
+  const [date, setDate] = useState(() => formatIST(new Date(), "yyyy-MM-dd'T'HH:mm"));
   const [note, setNote] = useState("");
   const [saving, setSaving] = useState(false);
 
@@ -41,40 +38,17 @@ export default function ExpensesPage() {
   const [editAmount, setEditAmount] = useState("");
   const [editType, setEditType] = useState<Expense["type"]>("expense");
   const [editCategory, setEditCategory] = useState<(typeof CATEGORIES)[number]>("Lunch");
-  const [editDate, setEditDate] = useState(() => format(nowIst, "yyyy-MM-dd'T'HH:mm"));
+  const [editDate, setEditDate] = useState(() => formatIST(new Date(), "yyyy-MM-dd'T'HH:mm"));
   const [editNote, setEditNote] = useState("");
   const [editSaving, setEditSaving] = useState(false);
 
-  useEffect(() => {
-    const baseIst = new Date(Date.UTC(year, month - 1, 1));
-    if (rangePreset === "month") {
-      const start = baseIst;
-      setFrom(format(start, "yyyy-MM-dd"));
-      setTo(format(addDays(addDays(start, 32), -((addDays(start, 32).getUTCDate() - 1))), "yyyy-MM-dd"));
-    }
-    if (rangePreset === "year") {
-      setFrom(`${year}-01-01`);
-      setTo(`${year + 1}-01-01`);
-    }
-    if (rangePreset === "week") {
-      const start = startOfWeek(nowIst, { weekStartsOn: 1 });
-      setFrom(format(start, "yyyy-MM-dd"));
-      setTo(format(addDays(start, 7), "yyyy-MM-dd"));
-    }
-  }, [rangePreset, month, year, nowIst]);
-
   const queryString = useMemo(() => {
     const sp = new URLSearchParams();
-    if (rangePreset === "month") {
-      sp.set("month", String(month));
-      sp.set("year", String(year));
-    } else {
-      sp.set("from", from);
-      sp.set("to", to);
-    }
+    sp.set("month", String(month));
+    sp.set("year", String(year));
     if (q.trim()) sp.set("q", q.trim());
     return sp.toString();
-  }, [month, year, q, rangePreset, from, to]);
+  }, [month, year, q]);
 
   async function load() {
     setLoading(true);
@@ -109,7 +83,7 @@ export default function ExpensesPage() {
           amount: Number(amount),
           type,
           category,
-          date: new Date(new Date(date + "Z").getTime() - IST_OFFSET_MS).toISOString(),
+          date: parseIST(date).toISOString(),
           note: note.trim() ? note.trim() : null,
         }),
       });
@@ -143,7 +117,7 @@ export default function ExpensesPage() {
     setEditAmount(String(e.amount));
     setEditType(e.type);
     setEditCategory((CATEGORIES.includes(e.category as Category) ? (e.category as Category) : "Other") as Category);
-    setEditDate(format(toIST(new Date(e.date)), "yyyy-MM-dd'T'HH:mm"));
+    setEditDate(formatIST(new Date(e.date), "yyyy-MM-dd'T'HH:mm"));
     setEditNote(e.note ?? "");
   }
 
@@ -159,7 +133,7 @@ export default function ExpensesPage() {
           amount: Number(editAmount),
           type: editType,
           category: editCategory,
-          date: new Date(new Date(editDate + "Z").getTime() - IST_OFFSET_MS).toISOString(),
+          date: parseIST(editDate).toISOString(),
           note: editNote.trim() ? editNote.trim() : null,
         }),
       });
@@ -175,34 +149,6 @@ export default function ExpensesPage() {
       setEditSaving(false);
     }
   }
-
-  function exportCsv() {
-    const header = ["date", "type", "category", "amount", "note"];
-    const rows = items.map((e) => [
-      format(toIST(new Date(e.date)), "yyyy-MM-dd HH:mm"),
-      e.type,
-      e.category,
-      e.amount.toFixed(2),
-      (e.note ?? "").replaceAll("\n", " ").trim(),
-    ]);
-
-    const csv = [header, ...rows]
-      .map((r) =>
-        r
-          .map((cell) => `"${String(cell).replaceAll('"', '""')}"`)
-          .join(",")
-      )
-      .join("\n");
-
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `expenses_${year}-${String(month).padStart(2, "0")}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
-  }
-
   return (
     <div className="flex flex-col h-auto lg:h-[calc(100vh-6rem)] space-y-6">
       {/* Header */}
@@ -215,12 +161,6 @@ export default function ExpensesPage() {
         </div>
         <div className="flex items-center gap-4">
           <TransactionActions onAddSuccess={() => load()} />
-          <button
-            onClick={exportCsv}
-            className="rounded-lg border border-cyan-500/50 bg-slate-950/60 backdrop-blur-sm px-4 py-2 text-sm font-medium text-cyan-300 hover:border-cyan-400/60 hover:shadow-lg hover:shadow-cyan-600/20 transition-all duration-300 h-[42px]"
-          >
-            Export CSV
-          </button>
         </div>
       </div>
 
@@ -230,97 +170,77 @@ export default function ExpensesPage() {
           
           <div className="shrink-0 liquid-glass ambient-shadow overflow-hidden p-6 relative z-10 animate-[slideDown_0.6s_cubic-bezier(0.34,1.56,0.64,1)]">
             <div className="absolute inset-0 bg-white/[0.01] border-b border-white/5" />
-            <div className="relative flex flex-col gap-5">
-              <div className="flex flex-wrap items-center gap-2">
-                {(
-                  [
-                    ["month", "Month"],
-                    ["week", "Week"],
-                    ["year", "Year"],
-                    ["custom", "Custom"],
-                  ] as const
-                ).map(([id, label]) => (
-                  <button
-                    key={id}
-                    onClick={() => setRangePreset(id)}
-                    className={`rounded-full px-4 py-2 text-xs font-semibold tracking-tight transition-all duration-300 ${
-                      rangePreset === id
-                        ? "bg-white/10 text-white shadow-[inset_0_1px_0_0_rgba(255,255,255,0.2)] drop-shadow-[0_0_8px_rgba(255,255,255,0.2)]"
-                        : "bg-black/20 text-white/50 hover:bg-white/5 hover:text-white/80 border border-white/5 shadow-[inset_0_2px_8px_rgba(0,0,0,0.4)]"
-                    }`}
-                  >
-                    {label}
-                  </button>
-                ))}
+            <div className="relative flex flex-col gap-6">
+              
+              {/* Month Selection Bubbles */}
+              <div className="flex flex-wrap justify-center gap-2 lg:gap-3">
+                {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => {
+                  const monthName = format(new Date(2000, m - 1, 1), "MMM");
+                  const isActive = month === m;
+                  return (
+                    <button
+                      key={m}
+                      onClick={() => {
+                        setMonth(m);
+                        setOverlayDate(""); // Clear date selection when changing months manually
+                      }}
+                      className={`relative rounded-full px-5 py-2 text-sm font-semibold transition-all duration-300 ${
+                        isActive 
+                          ? "bg-gradient-to-b from-blue-400 to-blue-600 shadow-[0_0_20px_rgba(59,130,246,0.4)] text-white scale-110 border border-blue-300/50 z-10"
+                          : "bg-slate-800/40 backdrop-blur-md text-blue-300/70 hover:bg-slate-700/60 hover:text-blue-200 border border-white/5 hover:border-blue-400/30"
+                      }`}
+                    >
+                      {isActive && (
+                        <div className="absolute inset-0 rounded-full bg-gradient-to-t from-transparent to-white/20 pointer-events-none" />
+                      )}
+                      {monthName}
+                    </button>
+                  );
+                })}
               </div>
 
-              {rangePreset === "month" && (
-                <div className="flex flex-wrap gap-2">
-                  {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => {
-                  const monthName = format(new Date(2000, m - 1, 1), "MMM");
-                    const isActive = month === m;
-                    return (
-                      <button
-                        key={m}
-                        onClick={() => setMonth(m)}
-                        className={`rounded-full px-3 py-1.5 text-xs font-medium tracking-tight transition-all duration-300 ${
-                          isActive 
-                            ? "bg-cyan-500/20 text-cyan-300 shadow-[0_0_12px_rgba(6,182,212,0.3)] scale-105 border border-cyan-400/30"
-                            : "bg-black/20 text-white/40 hover:bg-white/5 hover:text-white/80 shadow-[inset_0_2px_8px_rgba(0,0,0,0.4)] border border-transparent"
-                        }`}
-                      >
-                        {monthName}
-                      </button>
-                    )
-                  })}
-                </div>
-              )}
-
-              <div className="grid gap-4 sm:grid-cols-4">
+              {/* Secondary Row: Year, Date, Search */}
+              <div className="grid gap-4 sm:grid-cols-3 pt-2">
                 <div className="sm:col-span-1">
-                  <label className="text-xs font-medium tracking-tight text-white/60 mb-2 block">Year</label>
-                  <input
-                    type="number"
-                    min={1970}
-                    max={3000}
+                  <label className="text-xs font-medium tracking-tight text-white/60 mb-2 block uppercase">Select Year</label>
+                  <select
                     value={year}
-                    onChange={(e) => setYear(Number(e.target.value))}
-                    className="w-full rounded-[16px] bg-black/30 px-4 py-3 text-sm tracking-tight text-white placeholder-white/20 shadow-[inset_0_2px_12px_rgba(0,0,0,0.5)] outline-none ring-1 ring-white/5 transition-all focus:bg-black/40 focus:ring-white/20 hover:bg-black/20 disabled:opacity-50"
-                    disabled={rangePreset === "week"}
+                    onChange={(e) => {
+                      setYear(Number(e.target.value));
+                      setOverlayDate("");
+                    }}
+                    className="w-full appearance-none rounded-[16px] bg-slate-900/40 bg-gradient-to-b from-blue-500/5 to-transparent px-4 py-3 text-sm tracking-tight text-white placeholder-white/30 backdrop-blur-[16px] shadow-[inset_0_1px_1px_rgba(255,255,255,0.05),0_8px_32px_-8px_rgba(0,0,0,0.5)] outline-none border border-white/10 transition-all hover:border-blue-400/40 focus:border-blue-400/60 focus:shadow-[0_0_24px_rgba(59,130,246,0.3)] focus:bg-slate-800/50 [&>option]:bg-slate-900 [&>option]:text-white"
+                  >
+                    {Array.from({ length: 10 }, (_, i) => new Date().getFullYear() - 5 + i).map((y) => (
+                      <option key={y} value={y}>{y}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="sm:col-span-1">
+                  <label className="text-xs font-medium tracking-tight text-white/60 mb-2 block uppercase">Select Date</label>
+                  <input
+                    type="date"
+                    value={overlayDate}
+                    onChange={(e) => {
+                      setOverlayDate(e.target.value);
+                      if (e.target.value) {
+                        const [y, m] = e.target.value.split("-");
+                        setYear(Number(y));
+                        setMonth(Number(m));
+                      }
+                    }}
+                    className="w-full rounded-[16px] bg-slate-900/40 bg-gradient-to-b from-blue-500/5 to-transparent px-4 py-3 text-sm tracking-tight text-white placeholder-white/30 backdrop-blur-[16px] shadow-[inset_0_1px_1px_rgba(255,255,255,0.05),0_8px_32px_-8px_rgba(0,0,0,0.5)] outline-none border border-white/10 transition-all hover:border-blue-400/40 focus:border-blue-400/60 focus:shadow-[0_0_24px_rgba(59,130,246,0.3)] focus:bg-slate-800/50 [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-50 [&::-webkit-calendar-picker-indicator]:invert hover:[&::-webkit-calendar-picker-indicator]:opacity-80"
                   />
                 </div>
-                <div className="sm:col-span-3">
-                  <label className="text-xs font-medium tracking-tight text-white/60 mb-2 block">Search</label>
+                <div className="sm:col-span-1">
+                  <label className="text-xs font-medium tracking-tight text-white/60 mb-2 block uppercase">Search</label>
                   <input
                     value={q}
                     onChange={(e) => setQ(e.target.value)}
                     placeholder="Search by note or category…"
-                    className="w-full rounded-[16px] bg-black/30 px-4 py-3 text-sm tracking-tight text-white placeholder-white/20 shadow-[inset_0_2px_12px_rgba(0,0,0,0.5)] outline-none ring-1 ring-white/5 transition-all focus:bg-black/40 focus:ring-white/20 hover:bg-black/20"
+                    className="w-full rounded-[16px] bg-slate-900/40 bg-gradient-to-b from-blue-500/5 to-transparent px-4 py-3 text-sm tracking-tight text-white placeholder-white/30 backdrop-blur-[16px] shadow-[inset_0_1px_1px_rgba(255,255,255,0.05),0_8px_32px_-8px_rgba(0,0,0,0.5)] outline-none border border-white/10 transition-all hover:border-blue-400/40 focus:border-blue-400/60 focus:shadow-[0_0_24px_rgba(59,130,246,0.3)] focus:bg-slate-800/50"
                   />
                 </div>
-                
-                {rangePreset === "custom" && (
-                  <>
-                    <div className="sm:col-span-2">
-                      <label className="text-xs font-medium text-cyan-300">From</label>
-                      <input
-                        type="date"
-                        value={from}
-                        onChange={(e) => setFrom(e.target.value)}
-                        className="mt-0.5 w-full rounded-md border border-cyan-600/30 bg-slate-800/50 px-2 py-1 text-xs text-white placeholder-white/40 focus:border-cyan-400/60 focus:ring-2 focus:ring-cyan-400/30 outline-none transition-all"
-                      />
-                    </div>
-                    <div className="sm:col-span-2">
-                      <label className="text-xs font-medium text-cyan-300">To</label>
-                      <input
-                        type="date"
-                        value={to}
-                        onChange={(e) => setTo(e.target.value)}
-                        className="mt-0.5 w-full rounded-md border border-cyan-600/30 bg-slate-800/50 px-2 py-1 text-xs text-white placeholder-white/40 focus:border-cyan-400/60 focus:ring-2 focus:ring-cyan-400/30 outline-none transition-all"
-                      />
-                    </div>
-                  </>
-                )}
               </div>
             </div>
           </div>
@@ -365,9 +285,10 @@ export default function ExpensesPage() {
                             <div className="truncate text-sm font-medium tracking-tight text-white group-hover/item:text-blue-50 transition-colors">
                               <span className="inline-flex items-center gap-2">
                                 <span
-                                  className="h-2.5 w-2.5 shrink-0 rounded-full"
+                                  className="h-2.5 w-2.5 shrink-0 rounded-full shadow-[0_0_8px_rgba(255,255,255,0.2)]"
                                   style={{
-                                    background: CATEGORY_COLORS[e.category as Category] ?? "rgba(148,163,184,1)",
+                                    background: e.type === "expense" ? "#f43f5e" : "#10b981",
+                                    boxShadow: `0 0 10px ${e.type === "expense" ? "#f43f5e" : "#10b981"}40`
                                   }}
                                 />
                                 {e.category}
@@ -411,6 +332,79 @@ export default function ExpensesPage() {
         </div>
       </div>
 
+      {overlayDate ? (
+        <div className="fixed inset-0 z-40 grid place-items-center bg-black/60 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-2xl rounded-[24px] border border-cyan-500/20 bg-slate-950/70 p-6 shadow-[0_0_40px_rgba(6,182,212,0.15)] ring-1 ring-white/10 backdrop-blur-xl relative overflow-hidden flex flex-col max-h-[80vh]">
+            <div className="flex items-center justify-between border-b border-cyan-500/20 pb-4 mb-4">
+              <div className="text-lg font-semibold bg-gradient-to-r from-cyan-300 to-cyan-400 bg-clip-text text-transparent">Transactions for {overlayDate}</div>
+              <button
+                onClick={() => setOverlayDate("")}
+                className="rounded-full px-3 py-1.5 text-xs font-medium text-white/70 hover:text-white hover:bg-cyan-500/20 transition-colors border border-transparent hover:border-cyan-500/30"
+              >
+                Close
+              </button>
+            </div>
+            
+            <div className="flex-1 overflow-y-auto space-y-3 pr-2 scrollbar-thin scrollbar-thumb-cyan-600/50 scrollbar-track-transparent">
+              {items.filter(item => formatIST(new Date(item.date), "yyyy-MM-dd") === overlayDate).length === 0 ? (
+                <div className="px-6 py-10 text-center text-sm text-white/50">
+                  No transactions for this date.
+                </div>
+              ) : (
+                items.filter(item => formatIST(new Date(item.date), "yyyy-MM-dd") === overlayDate)
+                  .map((e) => (
+                    <div
+                      key={e.id}
+                      className="group/item relative rounded-xl bg-blue-900/10 border border-blue-500/20 backdrop-blur-md shadow-sm transition-all duration-300 ease-out hover:bg-blue-900/20 hover:shadow-[0_0_20px_rgba(59,130,246,0.1)] hover:border-blue-400/30 flex items-center justify-between gap-3 px-5 py-4"
+                    >
+                      <div className="min-w-0">
+                        <div className="truncate text-sm font-medium tracking-tight text-white group-hover/item:text-blue-50 transition-colors">
+                          <span className="inline-flex items-center gap-2">
+                            <span
+                              className="h-2.5 w-2.5 shrink-0 rounded-full shadow-[0_0_8px_rgba(255,255,255,0.2)]"
+                              style={{
+                                background: e.type === "expense" ? "#f43f5e" : "#10b981",
+                                boxShadow: `0 0 10px ${e.type === "expense" ? "#f43f5e" : "#10b981"}40`
+                              }}
+                            />
+                            {e.category}
+                          </span>
+                          {e.note ? <span className="text-white/40 group-hover/item:text-white/60 transition-colors"> — {e.note}</span> : null}
+                        </div>
+                        <div className="text-xs tracking-tight text-white/40 group-hover/item:text-white/60 mt-1 transition-colors flex items-center gap-1">
+                          <div className="w-[1.125rem] shrink-0" />
+                          {formatIST(new Date(e.date), "HH:mm")} • {e.type}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <div className={`text-base tracking-tight font-semibold transition-colors ${
+                          e.type === "expense" ? "text-rose-400" : "text-emerald-400"
+                        }`}>
+                          {e.type === "expense" ? "-" : "+"}₹{e.amount.toFixed(2)}
+                        </div>
+                        <div className="flex items-center gap-2 z-10">
+                          <button
+                            onClick={() => openEdit(e)}
+                            className="rounded-md border border-white/10 px-2.5 py-1.5 text-xs text-white/80 hover:text-cyan-300 hover:bg-cyan-900/40 hover:border-cyan-500/50 transition-colors"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => void onDelete(e.id)}
+                            className="rounded-md border border-white/10 px-2.5 py-1.5 text-xs text-white/80 hover:text-red-300 hover:bg-red-900/40 hover:border-red-500/50 transition-colors"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+              )}
+            </div>
+          </div>
+        </div>
+      ) : null}
+
       {editing ? (
         <div className="fixed inset-0 z-50 grid place-items-center bg-black/60 p-4 backdrop-blur-sm">
           <div className="w-full max-w-lg rounded-xl border border-white/10 bg-slate-900 p-4 shadow-2xl">
@@ -429,8 +423,16 @@ export default function ExpensesPage() {
                 <label className="text-xs text-white/70">Type</label>
                 <select
                   value={editType}
-                  onChange={(e) => setEditType(e.target.value as Expense["type"])}
-                  className="mt-1 w-full rounded-md border border-white/10 bg-black/20 px-3 py-2 text-sm text-white [&>option]:bg-slate-900 [&>option]:text-white"
+                  onChange={(e) => {
+                    const newType = e.target.value as Expense["type"];
+                    setEditType(newType);
+                    if (newType === "income" && !["Salary", "Budget Allowance", "Others"].includes(editCategory)) {
+                      setEditCategory("Salary");
+                    } else if (newType === "expense" && ["Salary", "Budget Allowance", "Others"].includes(editCategory)) {
+                      setEditCategory("Lunch");
+                    }
+                  }}
+                  className="mt-1 w-full appearance-none rounded-[16px] bg-slate-900/40 bg-gradient-to-b from-blue-500/5 to-transparent px-3 py-2 text-sm tracking-tight text-white placeholder-white/30 backdrop-blur-[16px] shadow-[inset_0_1px_1px_rgba(255,255,255,0.05),0_8px_32px_-8px_rgba(0,0,0,0.5)] outline-none border border-white/10 transition-all hover:border-blue-400/40 focus:border-blue-400/60 focus:shadow-[0_0_24px_rgba(59,130,246,0.3)] focus:bg-slate-800/50 [&>option]:bg-slate-900 [&>option]:text-white"
                 >
                   <option value="expense">Expense</option>
                   <option value="income">Income</option>
@@ -444,9 +446,12 @@ export default function ExpensesPage() {
                   onChange={(e) =>
                     setEditCategory(e.target.value as (typeof CATEGORIES)[number])
                   }
-                  className="mt-1 w-full rounded-md border border-white/10 bg-black/20 px-3 py-2 text-sm text-white [&>option]:bg-slate-900 [&>option]:text-white"
+                  className="mt-1 w-full appearance-none rounded-[16px] bg-slate-900/40 bg-gradient-to-b from-blue-500/5 to-transparent px-3 py-2 text-sm tracking-tight text-white placeholder-white/30 backdrop-blur-[16px] shadow-[inset_0_1px_1px_rgba(255,255,255,0.05),0_8px_32px_-8px_rgba(0,0,0,0.5)] outline-none border border-white/10 transition-all hover:border-blue-400/40 focus:border-blue-400/60 focus:shadow-[0_0_24px_rgba(59,130,246,0.3)] focus:bg-slate-800/50 [&>option]:bg-slate-900 [&>option]:text-white"
                 >
-                  {CATEGORIES.map((c) => (
+                  {(editType === "income" 
+                    ? (["Salary", "Budget Allowance", "Others"] as Category[]) 
+                    : CATEGORIES.filter(c => !["Salary", "Budget Allowance", "Others"].includes(c))
+                  ).map((c) => (
                     <option key={c} value={c}>
                       {c}
                     </option>

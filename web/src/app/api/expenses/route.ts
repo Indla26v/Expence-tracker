@@ -105,3 +105,31 @@ export async function POST(req: NextRequest) {
   return NextResponse.json(created, { status: 201 });
 }
 
+export async function DELETE(req: NextRequest) {
+  const authResult = await requireAuth(req);
+  if (authResult instanceof NextResponse) return authResult;
+
+  const { searchParams } = new URL(req.url);
+
+  const month = parseIntParam(searchParams.get("month"));
+  const year = parseIntParam(searchParams.get("year"));
+  if (!month || !year) {
+    return NextResponse.json({ error: "Month and year required" }, { status: 400 });
+  }
+
+  const tzOffset = -330; // IST fallback offset
+  const localStart = Date.UTC(year, month - 1, 1, 0, 0, 0, 0);
+  const localEnd = Date.UTC(year, month, 1, 0, 0, 0, 0);
+
+  const gte = new Date(localStart + tzOffset * 60000);
+  const lt = new Date(localEnd + tzOffset * 60000);
+
+  const deleted = await prisma.expense.deleteMany({
+    where: {
+      date: { gte, lt },
+    },
+  });
+
+  return NextResponse.json({ deleted: deleted.count }, { status: 200 });
+}
+

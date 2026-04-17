@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -15,11 +15,21 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Expense Tracker",
-  description: "Personal expense tracker",
+  description: "Modern personal expense tracker with liquid glassmorphism UI.",
+  manifest: "/manifest.json",
   icons: {
-    icon: "/logo.png",
-    apple: "/logo.png",
+    icon: "/icon.svg",
+    apple: "/icon.svg",
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Expenses"
   }
+};
+
+export const viewport: Viewport = {
+  themeColor: "#0a0a0a",
 };
 
 export default function RootLayout({

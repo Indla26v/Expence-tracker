@@ -2,7 +2,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { format } from "date-fns";
 import { CATEGORY_COLORS, type Category } from "@/lib/categories";
-import { toIST, startOfDayIST, startOfMonthIST, fromIST } from "@/lib/date";
+import { toIST, startOfDayIST, startOfMonthIST, fromIST, formatIST } from "@/lib/date";
 import { TransactionActions } from "@/components/transaction-actions";
 
 export default async function DashboardPage() {
@@ -91,7 +91,7 @@ export default async function DashboardPage() {
           <h1 className="bg-gradient-to-r from-cyan-400 via-cyan-300 to-cyan-400 bg-clip-text text-3xl font-bold text-transparent">
             Dashboard
           </h1>
-          <p className="mt-1 text-sm text-cyan-400/60">{format(nowIst, "EEEE, MMM d")}</p>
+          <p className="mt-1 text-sm text-cyan-400/60">{formatIST(new Date(), "EEEE, MMM d")}</p>
         </div>
         <TransactionActions />
       </div>
@@ -157,7 +157,7 @@ export default async function DashboardPage() {
           ) : (
             Object.entries(
               recent.reduce((acc, item) => {
-                const dateKey = format(toIST(new Date(item.date)), "MMM d, yyyy");
+                const dateKey = formatIST(new Date(item.date), "MMM d, yyyy");
                 if (!acc[dateKey]) acc[dateKey] = [];
                 acc[dateKey].push(item);
                 return acc;
@@ -193,7 +193,7 @@ export default async function DashboardPage() {
                         </div>
                         <div className="text-xs tracking-tight text-white/40 group-hover/item:text-white/60 mt-1 transition-colors flex items-center gap-1">
                           <div className="w-[1.125rem] shrink-0" />
-                          {format(toIST(new Date(e.date)), "HH:mm")} • {e.type}
+                          {formatIST(new Date(e.date), "HH:mm")} • {e.type}
                         </div>
                       </div>
                       <div className="flex items-center gap-4">

@@ -1,10 +1,9 @@
 "use client";
 
 import React, { useState } from "react";
-import { CATEGORIES, type Category } from "@/lib/categories";
+import { CATEGORIES, CATEGORY_COLORS, type Category } from "@/lib/categories";
 import { useRouter } from "next/navigation";
-import { toIST, IST_OFFSET_MS } from "@/lib/date";
-import { format } from "date-fns";
+import { formatIST, parseIST } from "@/lib/date";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown } from "lucide-react";
@@ -15,10 +14,9 @@ export function TransactionActions({ onAddSuccess }: { onAddSuccess?: () => void
   const router = useRouter();
   const [modalType, setModalType] = useState<TransactionType>(null);
   
-  const nowIst = toIST(new Date());
   const [amount, setAmount] = useState("");
   const [category, setCategory] = useState<Category>("Lunch");
-  const [date, setDate] = useState(() => format(nowIst, "yyyy-MM-dd'T'HH:mm"));
+  const [date, setDate] = useState(() => formatIST(new Date(), "yyyy-MM-dd'T'HH:mm"));
   const [note, setNote] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -28,7 +26,7 @@ export function TransactionActions({ onAddSuccess }: { onAddSuccess?: () => void
     setError(null);
     setAmount("");
     setNote("");
-    setDate(format(toIST(new Date()), "yyyy-MM-dd'T'HH:mm"));
+    setDate(formatIST(new Date(), "yyyy-MM-dd'T'HH:mm"));
     setCategory(type === "income" ? "Salary" : "Lunch");
   };
 
@@ -49,7 +47,7 @@ export function TransactionActions({ onAddSuccess }: { onAddSuccess?: () => void
           amount: Number(amount),
           type: modalType,
           category,
-          date: new Date(new Date(date + "Z").getTime() - IST_OFFSET_MS).toISOString(),
+          date: parseIST(date).toISOString(),
           note: note.trim() ? note.trim() : null,
         }),
       });
@@ -162,7 +160,7 @@ export function TransactionActions({ onAddSuccess }: { onAddSuccess?: () => void
                       placeholder="0.00"
                       value={amount}
                       onChange={(e) => setAmount(e.target.value)}
-                      className="w-full rounded-[24px] bg-black/30 py-6 pl-14 pr-6 text-4xl font-light tracking-tight text-white placeholder-white/10 shadow-[inset_0_2px_12px_rgba(0,0,0,0.5)] outline-none ring-1 ring-white/5 transition-all focus:bg-black/40 focus:ring-white/20 hover:bg-black/20"
+                      className="w-full rounded-[24px] bg-slate-900/40 bg-gradient-to-b from-blue-500/5 to-transparent py-6 pl-14 pr-6 text-4xl font-light tracking-tight text-white placeholder-white/30 backdrop-blur-[16px] shadow-[inset_0_1px_1px_rgba(255,255,255,0.05),0_8px_32px_-8px_rgba(0,0,0,0.5)] outline-none border border-white/10 transition-all hover:border-blue-400/40 focus:border-blue-400/60 focus:shadow-[0_0_24px_rgba(59,130,246,0.3)] focus:bg-slate-800/50"
                     />
                   </div>
 
@@ -170,9 +168,16 @@ export function TransactionActions({ onAddSuccess }: { onAddSuccess?: () => void
                     <DropdownMenu.Root>
                       <DropdownMenu.Trigger asChild>
                         <button
-                          className="group flex w-full appearance-none items-center justify-between rounded-[20px] bg-black/30 px-6 py-4 text-white placeholder-white/20 shadow-[inset_0_2px_12px_rgba(0,0,0,0.5)] outline-none ring-1 ring-white/5 transition-all hover:bg-black/20 focus:bg-black/40 focus:ring-white/20"
+                          className="group flex w-full appearance-none items-center justify-between rounded-[20px] bg-slate-900/40 bg-gradient-to-b from-blue-500/5 to-transparent px-6 py-4 text-white placeholder-white/30 backdrop-blur-[16px] shadow-[inset_0_1px_1px_rgba(255,255,255,0.05),0_8px_32px_-8px_rgba(0,0,0,0.5)] outline-none border border-white/10 transition-all hover:border-blue-400/40 focus:border-blue-400/60 focus:shadow-[0_0_24px_rgba(59,130,246,0.3)] focus:bg-slate-800/50"
                         >
-                          <span className="font-medium tracking-tight text-white/90">
+                          <span className="font-medium tracking-tight text-white/90 flex items-center gap-3">
+                            <div
+                              className="h-2.5 w-2.5 shrink-0 rounded-full shadow-[0_0_10px_rgba(255,255,255,0.2)]"
+                              style={{
+                                background: CATEGORY_COLORS[category as Category] ?? "#94a3b8",
+                                boxShadow: `0 0 10px ${CATEGORY_COLORS[category as Category] ?? "#94a3b8"}40`
+                              }}
+                            />
                             {category || "Select Category"}
                           </span>
                           <ChevronDown className="h-5 w-5 text-white/40 transition-transform group-data-[state=open]:rotate-180" />
@@ -186,18 +191,21 @@ export function TransactionActions({ onAddSuccess }: { onAddSuccess?: () => void
                           className="z-[60] min-w-[240px] rounded-[24px] p-2"
                         >
                           <motion.div
-                            initial={{ opacity: 0, scale: 0.95, y: -5 }}
+                            initial={{ opacity: 0, scale: 0.95, y: -10 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.95, y: -5 }}
+                            exit={{ opacity: 0, scale: 0.95, y: -10 }}
                             transition={{
                               type: "spring",
                               stiffness: 300,
                               damping: 30,
                             }}
-                            className="liquid-glass ambient-shadow overflow-hidden bg-black/40 shadow-2xl! shadow-black/60 outline-none saturate-200"
+                            className="bg-slate-900/60 bg-gradient-to-b from-white/[0.05] to-transparent backdrop-blur-[24px] border border-white/10 rounded-[24px] shadow-[0_0_40px_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,255,255,0.1)] outline-none saturate-200"
                           >
                             <div className="max-h-[300px] overflow-y-auto px-1 py-2 custom-scrollbar">
-                              {CATEGORIES.map((c) => {
+                              {(modalType === "income" 
+                                ? (["Salary", "Budget Allowance", "Others"] as Category[]) 
+                                : CATEGORIES.filter(c => !["Salary", "Budget Allowance", "Others"].includes(c))
+                              ).map((c) => {
                                 const isSelected = category === c;
                                 return (
                                   <DropdownMenu.Item
@@ -209,7 +217,16 @@ export function TransactionActions({ onAddSuccess }: { onAddSuccess?: () => void
                                         : "text-white/70 hover:text-white"
                                     }`}
                                   >
-                                    <span className="relative z-10">{c}</span>
+                                    <div className="relative z-10 flex items-center gap-3 w-full">
+                                      <div
+                                        className="h-2.5 w-2.5 shrink-0 rounded-full shadow-[0_0_10px_rgba(255,255,255,0.2)]"
+                                        style={{
+                                          background: CATEGORY_COLORS[c as Category] ?? "#94a3b8",
+                                          boxShadow: `0 0 10px ${CATEGORY_COLORS[c as Category] ?? "#94a3b8"}40`
+                                        }}
+                                      />
+                                      <span>{c}</span>
+                                    </div>
                                     {isSelected && (
                                       <motion.div
                                         layoutId="activeCategory"
@@ -235,14 +252,14 @@ export function TransactionActions({ onAddSuccess }: { onAddSuccess?: () => void
                     placeholder="What was this for?"
                     value={note}
                     onChange={(e) => setNote(e.target.value)}
-                    className="w-full rounded-[20px] bg-black/30 px-6 py-4 text-white tracking-tight placeholder-white/20 shadow-[inset_0_2px_12px_rgba(0,0,0,0.5)] outline-none ring-1 ring-white/5 transition-all focus:bg-black/40 focus:ring-white/20 hover:bg-black/20"
+                    className="w-full rounded-[20px] bg-slate-900/40 bg-gradient-to-b from-blue-500/5 to-transparent px-6 py-4 text-white tracking-tight placeholder-white/30 backdrop-blur-[16px] shadow-[inset_0_1px_1px_rgba(255,255,255,0.05),0_8px_32px_-8px_rgba(0,0,0,0.5)] outline-none border border-white/10 transition-all hover:border-blue-400/40 focus:border-blue-400/60 focus:shadow-[0_0_24px_rgba(59,130,246,0.3)] focus:bg-slate-800/50"
                   />
 
                   <input
                     type="datetime-local"
                     value={date}
                     onChange={(e) => setDate(e.target.value)}
-                    className="w-full rounded-[20px] bg-black/30 px-6 py-4 text-white tracking-tight shadow-[inset_0_2px_12px_rgba(0,0,0,0.5)] outline-none ring-1 ring-white/5 transition-all focus:bg-black/40 focus:ring-white/20 hover:bg-black/20 [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-50 [&::-webkit-calendar-picker-indicator]:invert hover:[&::-webkit-calendar-picker-indicator]:opacity-80"
+                    className="w-full rounded-[20px] bg-slate-900/40 bg-gradient-to-b from-blue-500/5 to-transparent px-6 py-4 text-white tracking-tight backdrop-blur-[16px] shadow-[inset_0_1px_1px_rgba(255,255,255,0.05),0_8px_32px_-8px_rgba(0,0,0,0.5)] outline-none border border-white/10 transition-all hover:border-blue-400/40 focus:border-blue-400/60 focus:shadow-[0_0_24px_rgba(59,130,246,0.3)] focus:bg-slate-800/50 [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-50 [&::-webkit-calendar-picker-indicator]:invert hover:[&::-webkit-calendar-picker-indicator]:opacity-80"
                   />
 
                   <button 

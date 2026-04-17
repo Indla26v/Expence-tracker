@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Wallet, Calendar, CalendarDays, IndianRupee } from "lucide-react";
+import { Wallet, Calendar, CalendarDays, IndianRupee, Database, Trash2, Download, Check, ChevronDown } from "lucide-react";
+import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
+import { motion, AnimatePresence } from "framer-motion";
 
 type Budget = { id: string; month: number; year: number; amount: number };
 
@@ -25,6 +27,16 @@ export default function SettingsPage() {
   const [loadingSettings, setLoadingSettings] = useState(true);
   const [savingBalance, setSavingBalance] = useState(false);
   const [balanceError, setBalanceError] = useState<string | null>(null);
+
+  const [dbMonth, setDbMonth] = useState(now.getUTCMonth() + 1);
+  const [dbYear, setDbYear] = useState(now.getUTCFullYear());
+  const [dbMonthMenuOpen, setDbMonthMenuOpen] = useState(false);
+  const [budgetMonthMenuOpen, setBudgetMonthMenuOpen] = useState(false);
+  const [dbDeleting, setDbDeleting] = useState(false);
+  const [dbError, setDbError] = useState<string | null>(null);
+  const [dbSuccess, setDbSuccess] = useState<string | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [dbExporting, setDbExporting] = useState(false);
 
   const qs = useMemo(() => {
     const sp = new URLSearchParams();
@@ -130,6 +142,63 @@ export default function SettingsPage() {
     }
   }
 
+  async function onExportCsv() {
+    setDbExporting(true);
+    setDbError(null);
+    setDbSuccess(null);
+    try {
+      const res = await fetch(`/api/expenses/export?month=${dbMonth}&year=${dbYear}`);
+      if (!res.ok) {
+        throw new Error("Failed to export data");
+      }
+      
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `expenses-${dbYear}-${dbMonth.toString().padStart(2, "0")}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      setDbSuccess("Data exported successfully.");
+    } catch (e) {
+      setDbError(e instanceof Error ? e.message : "Failed to export data");
+    } finally {
+      setDbExporting(false);
+    }
+  }
+
+  async function onDeleteData() {
+    setDbDeleting(true);
+    setDbError(null);
+    setDbSuccess(null);
+    try {
+      if (!confirmDelete) {
+        setConfirmDelete(true);
+        setDbDeleting(false);
+        return;
+      }
+      
+      const res = await fetch(`/api/expenses?month=${dbMonth}&year=${dbYear}`, {
+        method: "DELETE"
+      });
+      
+      if (!res.ok) {
+        throw new Error("Failed to delete data");
+      }
+      
+      const json = await res.json();
+      setDbSuccess(`Successfully deleted ${json.deleted ?? 0} records.`);
+      setConfirmDelete(false);
+    } catch (e) {
+      setDbError(e instanceof Error ? e.message : "Failed to delete data");
+    } finally {
+      setDbDeleting(false);
+    }
+  }
+
   return (
     <div className="mx-auto max-w-3xl py-8 space-y-8 font-sans">
       <div className="text-center space-y-2 animate-[slideDown_0.6s_cubic-bezier(0.34,1.56,0.64,1)]">
@@ -214,25 +283,64 @@ export default function SettingsPage() {
           </div>
 
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            <div>
+            <div className="z-[80] relative">
               <label className="mb-2 block text-xs font-semibold tracking-wide text-white/80 uppercase">Month</label>
-              <div className="relative group">
-                <div className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-white/40 group-focus-within:text-indigo-400 transition-colors">
-                  <Calendar className="h-4 w-4" />
-                </div>
-                <select
-                  value={month}
-                  onChange={(e) => setMonth(Number(e.target.value))}
-                  className="w-full appearance-none rounded-xl border border-white/10 bg-black/20 pl-10 pr-8 py-3 text-sm font-medium tracking-tight text-white outline-none ring-1 ring-transparent transition-all hover:bg-black/30 focus:border-indigo-500/50 focus:bg-black/40 focus:ring-indigo-500/20 focus:shadow-[0_0_20px_rgba(99,102,241,0.15)] [&>option]:bg-slate-900"
-                >
-                  {MONTHS.map((m, i) => (
-                    <option key={i + 1} value={i + 1}>{m}</option>
-                  ))}
-                </select>
-                <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-white/40">
-                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
-                </div>
-              </div>
+              <DropdownMenu.Root open={budgetMonthMenuOpen} onOpenChange={setBudgetMonthMenuOpen}>
+                <DropdownMenu.Trigger asChild>
+                  <button className="relative flex w-full items-center justify-between overflow-hidden rounded-xl border border-white/[0.08] bg-white/[0.04] p-[1px] text-sm font-medium tracking-tight text-white/90 shadow-[0_4px_24px_rgba(0,0,0,0.4)] backdrop-blur-2xl transition-all hover:bg-white/[0.06] hover:shadow-[0_4px_32px_rgba(0,0,0,0.5)] focus:outline-none focus:ring-2 focus:ring-indigo-500/50">
+                    <div className="flex h-11 w-full items-center justify-between rounded-[10px] bg-gradient-to-b from-white/[0.05] to-transparent pl-3 pr-4">
+                      <div className="flex items-center gap-2.5">
+                        <Calendar className="h-4 w-4 text-indigo-400" />
+                        <span className="text-white/90 tracking-tight">
+                          {MONTHS[month - 1]}
+                        </span>
+                      </div>
+                      <ChevronDown className="h-4 w-4 text-white/40 transition-transform group-data-[state=open]:rotate-180" />
+                    </div>
+                  </button>
+                </DropdownMenu.Trigger>
+
+                <AnimatePresence>
+                  {budgetMonthMenuOpen && (
+                    <DropdownMenu.Portal forceMount>
+                      <DropdownMenu.Content
+                        asChild
+                        align="start"
+                        sideOffset={8}
+                        className="z-[999] min-w-[200px]"
+                      >
+                        <motion.div
+                          initial={{ opacity: 0, y: -4, scale: 0.98 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          exit={{ opacity: 0, y: -4, scale: 0.98 }}
+                          transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                          className="overflow-hidden rounded-xl border border-white/[0.08] bg-[#0a0a0a]/90 p-1.5 shadow-[0_16px_64px_-16px_rgba(0,0,0,0.8)] backdrop-blur-2xl flex flex-col max-h-[300px] overflow-y-auto custom-scrollbar"
+                        >
+                          {MONTHS.map((mName, i) => {
+                            const mValue = i + 1;
+                            const isSelected = month === mValue;
+                            return (
+                              <DropdownMenu.Item
+                                key={mValue}
+                                onSelect={() => {
+                                  setMonth(mValue);
+                                  setBudgetMonthMenuOpen(false);
+                                }}
+                                className={`relative flex cursor-pointer select-none items-center justify-between rounded-lg px-3 py-2.5 text-sm font-medium transition-all outline-none data-[highlighted]:bg-white/10 ${
+                                  isSelected ? "text-indigo-400 bg-indigo-500/10" : "text-white/80"
+                                }`}
+                              >
+                                <span className="truncate">{mName}</span>
+                                {isSelected && <Check className="h-4 w-4" />}
+                              </DropdownMenu.Item>
+                            );
+                          })}
+                        </motion.div>
+                      </DropdownMenu.Content>
+                    </DropdownMenu.Portal>
+                  )}
+                </AnimatePresence>
+              </DropdownMenu.Root>
             </div>
 
             <div>
@@ -282,6 +390,142 @@ export default function SettingsPage() {
               className="rounded-xl bg-gradient-to-r from-indigo-500 to-violet-600 px-6 py-2.5 text-sm font-semibold tracking-wide text-white shadow-lg shadow-indigo-500/25 hover:from-indigo-400 hover:to-violet-500 hover:shadow-indigo-400/40 focus:outline-none focus:ring-2 focus:ring-indigo-400/50 active:scale-95 disabled:opacity-50 disabled:pointer-events-none transition-all duration-300"
             >
               {saving ? "Saving..." : "Save Limit"}
+            </button>
+          </div>
+        </div>
+
+        {/* Database Management Section */}
+        <div className="liquid-glass ambient-shadow p-8 rounded-[24px] border border-red-500/20 bg-slate-950/40 backdrop-blur-xl transition-all duration-300 hover:bg-slate-950/50 hover:shadow-red-900/10 hover:shadow-2xl">
+          <div className="mb-6">
+            <h2 className="text-lg font-semibold tracking-tight text-red-400 flex items-center gap-2">
+              <Database className="h-5 w-5 text-red-500" />
+              Database Management
+            </h2>
+            <p className="mt-1 text-xs tracking-tight text-white/50">
+              Export data or permanently delete old records to optimize application performance.
+            </p>
+          </div>
+
+          <div className="grid gap-6 sm:grid-cols-2">
+            <div className="z-[70] relative">
+              <label className="mb-2 block text-xs font-semibold tracking-wide text-white/80 uppercase">Target Month</label>
+              <DropdownMenu.Root open={dbMonthMenuOpen} onOpenChange={setDbMonthMenuOpen}>
+                <DropdownMenu.Trigger asChild>
+                  <button className="relative flex w-full items-center justify-between overflow-hidden rounded-xl border border-white/[0.08] bg-white/[0.04] p-[1px] text-sm font-medium tracking-tight text-white/90 shadow-[0_4px_24px_rgba(0,0,0,0.4)] backdrop-blur-2xl transition-all hover:bg-white/[0.06] hover:shadow-[0_4px_32px_rgba(0,0,0,0.5)] focus:outline-none focus:ring-2 focus:ring-indigo-500/50">
+                    <div className="flex h-11 w-full items-center justify-between rounded-[10px] bg-gradient-to-b from-white/[0.05] to-transparent pl-3 pr-4">
+                      <div className="flex items-center gap-2.5">
+                        <Calendar className="h-4 w-4 text-indigo-400" />
+                        <span className="text-white/90 tracking-tight">
+                          {MONTHS[dbMonth - 1]}
+                        </span>
+                      </div>
+                      <ChevronDown className="h-4 w-4 text-white/40 transition-transform group-data-[state=open]:rotate-180" />
+                    </div>
+                  </button>
+                </DropdownMenu.Trigger>
+
+                <AnimatePresence>
+                  {dbMonthMenuOpen && (
+                    <DropdownMenu.Portal forceMount>
+                      <DropdownMenu.Content
+                        asChild
+                        align="start"
+                        sideOffset={8}
+                        className="z-[999] min-w-[200px]"
+                      >
+                        <motion.div
+                          initial={{ opacity: 0, y: -4, scale: 0.98 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          exit={{ opacity: 0, y: -4, scale: 0.98 }}
+                          transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                          className="overflow-hidden rounded-xl border border-white/[0.08] bg-[#0a0a0a]/90 p-1.5 shadow-[0_16px_64px_-16px_rgba(0,0,0,0.8)] backdrop-blur-2xl flex flex-col max-h-[300px] overflow-y-auto custom-scrollbar"
+                        >
+                          {MONTHS.map((mName, i) => {
+                            const mValue = i + 1;
+                            const isSelected = dbMonth === mValue;
+                            return (
+                              <DropdownMenu.Item
+                                key={mValue}
+                                onSelect={() => {
+                                  setDbMonth(mValue);
+                                  setConfirmDelete(false);
+                                  setDbSuccess(null);
+                                  setDbError(null);
+                                  setDbMonthMenuOpen(false);
+                                }}
+                                className={`relative flex cursor-pointer select-none items-center justify-between rounded-lg px-3 py-2.5 text-sm font-medium transition-all outline-none data-[highlighted]:bg-white/10 ${
+                                  isSelected ? "text-indigo-400 bg-indigo-500/10" : "text-white/80"
+                                }`}
+                              >
+                                <span className="truncate">{mName}</span>
+                                {isSelected && <Check className="h-4 w-4" />}
+                              </DropdownMenu.Item>
+                            );
+                          })}
+                        </motion.div>
+                      </DropdownMenu.Content>
+                    </DropdownMenu.Portal>
+                  )}
+                </AnimatePresence>
+              </DropdownMenu.Root>
+            </div>
+
+            <div>
+              <label className="mb-2 block text-xs font-semibold tracking-wide text-white/80 uppercase">Target Year</label>
+              <div className="relative group">
+                <div className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-white/40 group-focus-within:text-red-400 transition-colors">
+                  <CalendarDays className="h-4 w-4" />
+                </div>
+                <input
+                  type="number"
+                  min={1970}
+                  max={3000}
+                  value={dbYear}
+                  onChange={(e) => {
+                    setDbYear(Number(e.target.value));
+                    setConfirmDelete(false);
+                    setDbSuccess(null);
+                    setDbError(null);
+                  }}
+                  className="w-full rounded-xl border border-white/10 bg-black/20 pl-10 pr-4 py-3 text-sm font-medium tracking-tight text-white outline-none ring-1 ring-transparent transition-all hover:bg-black/30 focus:border-red-500/50 focus:bg-black/40 focus:ring-red-500/20 focus:shadow-[0_0_20px_rgba(239,68,68,0.15)]"
+                />
+              </div>
+            </div>
+          </div>
+
+          {dbError && (
+            <div className="mt-4 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm font-medium text-rose-300">
+              {dbError}
+            </div>
+          )}
+          
+          {dbSuccess && (
+            <div className="mt-4 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm font-medium text-emerald-300">
+              {dbSuccess}
+            </div>
+          )}
+
+          <div className="flex flex-col sm:flex-row gap-3 justify-end pt-6">
+            <button
+              onClick={() => void onExportCsv()}
+              disabled={dbExporting}
+              className="flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-black/30 px-6 py-2.5 text-sm font-semibold tracking-wide text-white hover:bg-black/50 hover:border-white/20 focus:outline-none focus:ring-2 focus:ring-white/20 active:scale-95 disabled:opacity-50 disabled:pointer-events-none transition-all duration-300"
+            >
+              <Download className="h-4 w-4" />
+              {dbExporting ? "Exporting..." : "Export as CSV"}
+            </button>
+            
+            <button
+              onClick={() => void onDeleteData()}
+              disabled={dbDeleting}
+              className={`flex items-center justify-center gap-2 rounded-xl px-6 py-2.5 text-sm font-semibold tracking-wide text-white shadow-lg transition-all duration-300 focus:outline-none active:scale-95 disabled:opacity-50 disabled:pointer-events-none ${
+                confirmDelete 
+                  ? "bg-red-600 hover:bg-red-500 shadow-red-500/30 focus:ring-2 focus:ring-red-400/50 animate-pulse" 
+                  : "bg-gradient-to-r from-rose-500 to-red-600 shadow-red-500/25 hover:from-rose-400 hover:to-red-500 hover:shadow-[0_0_25px_rgba(239,68,68,0.4)] focus:ring-2 focus:ring-red-400/50"
+              }`}
+            >
+              <Trash2 className="h-4 w-4" />
+              {dbDeleting ? "Processing..." : confirmDelete ? "Click again to confirm PERMANENT DELETE" : "Clear Data"}
             </button>
           </div>
         </div>

@@ -42,7 +42,7 @@ type DailyResponse = {
 
 export default function AnalyticsPage() {
   const now = new Date();
-  const [view, setView] = useState<"daily" | "monthly" | "yearly">("monthly");
+  const [view, setView] = useState<"monthly" | "yearly">("monthly");
   const [month, setMonth] = useState(now.getUTCMonth() + 1);
   const [year, setYear] = useState(now.getUTCFullYear());
   const [date, setDate] = useState(() => format(now, "yyyy-MM-dd"));
@@ -78,7 +78,6 @@ export default function AnalyticsPage() {
         if (cancelled) return;
         if (view === "monthly") setMonthly(json as MonthlyResponse);
         if (view === "yearly") setYearly(json as YearlyResponse);
-        if (view === "daily") setDaily(json as DailyResponse);
       })
       .catch((e) => {
         if (!cancelled) setError(e instanceof Error ? e.message : "Failed to load analytics");
@@ -102,20 +101,6 @@ export default function AnalyticsPage() {
       })) ?? [];
 
   const lineData = useMemo(() => {
-    if (view === "daily") {
-      if (!daily?.week?.byDayOfWeek) return [];
-      const dows = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-      // The API week starts on Monday, so we can display Mon-Sun.
-      return [1, 2, 3, 4, 5, 6, 0].map(dow => {
-        const data = daily.week.byDayOfWeek.find(d => d.dow === dow);
-        return {
-          day: dows[dow],
-          expense: data?.expense ?? 0,
-          income: data?.income ?? 0,
-        };
-      });
-    }
-
     if (view === "monthly") {
       if (!monthly) return [];
       const daysInMonth = new Date(monthly.year, monthly.month, 0).getDate();
@@ -159,7 +144,7 @@ export default function AnalyticsPage() {
       <div className="flex shrink-0 items-center justify-between gap-4 animate-[slideDown_0.6s_cubic-bezier(0.34,1.56,0.64,1)]">
         <div className="flex flex-col gap-2">
           <h1 className="bg-gradient-to-r from-blue-400 via-purple-400 to-indigo-400 bg-clip-text text-3xl font-bold text-transparent">Analytics</h1>
-          <p className="text-sm text-blue-300/70">Daily, monthly, and yearly reports</p>
+          <p className="text-sm text-blue-300/70">Monthly and yearly reports</p>
         </div>
       </div>
 
@@ -172,7 +157,6 @@ export default function AnalyticsPage() {
               <div className="flex flex-wrap items-center gap-2">
                 {(
                   [
-                    ["daily", "Daily"],
                     ["monthly", "Monthly"],
                     ["yearly", "Year"],
                   ] as const
@@ -237,22 +221,6 @@ export default function AnalyticsPage() {
                     className="mt-1.5 w-full rounded-md border border-blue-600/30 bg-slate-800/50 px-2 py-1.5 text-sm text-white focus:border-blue-400/60 focus:outline-none focus:ring-2 focus:ring-blue-400/30 transition-all"
                   />
                 </div>
-
-                {view === "daily" && (
-                  <div className="sm:col-span-1">
-                    <label className="text-xs font-medium text-blue-300">Date</label>
-                    <input
-                      type="date"
-                      value={date}
-                      onChange={(e) => {
-                        setLoading(true);
-                        setError(null);
-                        setDate(e.target.value);
-                      }}
-                      className="mt-1.5 w-full rounded-md border border-blue-600/30 bg-slate-800/50 px-2 py-1.5 text-sm text-white focus:border-blue-400/60 focus:outline-none focus:ring-2 focus:ring-blue-400/30 transition-all"
-                    />
-                  </div>
-                )}
               </div>
 
               <div className="flex flex-col gap-4 pt-4 border-t border-blue-500/20">
@@ -305,25 +273,25 @@ export default function AnalyticsPage() {
             </div>
           </div>
 
-          {/* Right: Pie Chart / Hourly bars */}
+          {/* Right: Day-by-day / Month-by-month */}
           <div className="flex flex-1 flex-col gap-6 min-w-0 min-h-[400px]">
-            <div className="rounded-2xl border border-white/10 bg-slate-950/40 backdrop-blur-md p-5 flex flex-col h-full flex-1">
+            <div className="rounded-2xl border border-white/10 bg-slate-950/40 backdrop-blur-md p-5 flex flex-col h-full flex-1 shadow-[0_0_15px_rgba(59,130,246,0.1)] ring-1 ring-blue-500/20">
               <div className="text-sm font-semibold text-blue-300 mb-6">
-                {view === "daily" ? "Today by hour" : "Spending by category"}
+                {view === "yearly" ? "Month-by-month" : "Spending Trends"}
               </div>
               <div className="flex-1 w-full h-[300px]">
                 {loading ? (
                   <div className="h-full grid place-items-center text-sm text-white/70">Loading...</div>
-                ) : view === "daily" ? (
-                  hourBars.length === 0 ? (
+                ) : view === "yearly" ? (
+                  monthBars.length === 0 ? (
                     <div className="h-full grid place-items-center text-sm text-white/70">No data.</div>
                   ) : (
                     <ResponsiveContainer width="100%" height={300}>
-                      <BarChart data={hourBars} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                        <XAxis dataKey="hour" stroke="currentColor" className="text-slate-500" fontSize={12} tickLine={false} axisLine={false} />
+                      <BarChart data={monthBars} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                        <XAxis dataKey="month" stroke="currentColor" className="text-slate-500" fontSize={12} tickLine={false} axisLine={false} />
                         <YAxis stroke="currentColor" className="text-slate-500" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(val) => `₹${val}`} />
                         <Tooltip
-                          cursor={{ fill: "rgba(59, 130, 246, 0.1)" }}
+                          cursor={{ fill: "rgba(139, 92, 246, 0.1)" }}
                           contentStyle={{
                             background: "rgba(15, 23, 42, 0.9)",
                             border: "1px solid rgba(59,130,246,0.3)",
@@ -331,10 +299,42 @@ export default function AnalyticsPage() {
                             color: "white"
                           }}
                         />
-                        <Bar dataKey="expense" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                        <Bar dataKey="expense" fill="#8b5cf6" radius={[4, 4, 0, 0]} />
                       </BarChart>
                     </ResponsiveContainer>
                   )
+                ) : lineData.length === 0 ? (
+                  <div className="h-full grid place-items-center text-sm text-white/70">No data.</div>
+                ) : (
+                  <ResponsiveContainer width="100%" height={300}>
+                    <LineChart data={lineData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                      <XAxis dataKey="day" stroke="currentColor" className="text-slate-500" fontSize={12} tickLine={false} axisLine={false} />
+                      <YAxis stroke="currentColor" className="text-slate-500" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(val) => `₹${val}`} />
+                      <Tooltip
+                        contentStyle={{
+                          background: "rgba(15, 23, 42, 0.9)",
+                          border: "1px solid rgba(59,130,246,0.3)",
+                          borderRadius: "12px",
+                          color: "white"
+                        }}
+                      />
+                      <Line type="monotone" dataKey="expense" stroke="#ef4444" strokeWidth={3} dot={{ r: 4, fill: "#ef4444", strokeWidth: 0 }} activeDot={{ r: 6, fill: "#ef4444", strokeWidth: 0 }} />
+                      <Line type="monotone" dataKey="income" stroke="#22c55e" strokeWidth={3} dot={{ r: 4, fill: "#22c55e", strokeWidth: 0 }} activeDot={{ r: 6, fill: "#22c55e", strokeWidth: 0 }} />
+                    </LineChart>
+                  </ResponsiveContainer>
+                )}
+              </div>
+            </div>
+
+            {/* ROW 2: Spending by category */}
+            <div className="w-full flex-none">
+              <div className="rounded-2xl border border-white/10 bg-slate-950/40 backdrop-blur-md p-5 flex flex-col h-full min-h-[400px] shadow-[0_0_15px_rgba(59,130,246,0.1)] ring-1 ring-blue-500/20">
+                <div className="text-sm font-semibold text-blue-300 mb-6">
+                 Spending by category
+                </div>
+                <div className="flex-1 w-full h-[300px]">
+                {loading ? (
+                  <div className="h-full grid place-items-center text-sm text-white/70">Loading...</div>
                 ) : pieData.length === 0 ? (
                   <div className="h-full grid place-items-center text-sm text-white/70">No data.</div>
                 ) : (
@@ -375,63 +375,10 @@ export default function AnalyticsPage() {
                 )}
               </div>
             </div>
-
-            {/* ROW 2: Day-by-day / Month-by-month */}
-            <div className="w-full flex-none">
-              <div className="rounded-2xl border border-white/10 bg-slate-950/40 backdrop-blur-md p-5 flex flex-col h-full min-h-[400px]">
-                <div className="text-sm font-semibold text-blue-300 mb-6">
-              {view === "yearly" ? "Month-by-month" : "Day-by-day"}
-            </div>
-            <div className="flex-1 w-full h-[300px]">
-              {loading ? (
-                <div className="h-full grid place-items-center text-sm text-white/70">Loading...</div>
-              ) : view === "yearly" ? (
-                monthBars.length === 0 ? (
-                  <div className="h-full grid place-items-center text-sm text-white/70">No data.</div>
-                ) : (
-                  <ResponsiveContainer width="100%" height={300}>
-                    <BarChart data={monthBars} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                      <XAxis dataKey="month" stroke="currentColor" className="text-slate-500" fontSize={12} tickLine={false} axisLine={false} />
-                      <YAxis stroke="currentColor" className="text-slate-500" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(val) => `₹${val}`} />
-                      <Tooltip
-                        cursor={{ fill: "rgba(139, 92, 246, 0.1)" }}
-                        contentStyle={{
-                          background: "rgba(15, 23, 42, 0.9)",
-                          border: "1px solid rgba(59,130,246,0.3)",
-                          borderRadius: "12px",
-                          color: "white"
-                        }}
-                      />
-                      <Bar dataKey="expense" fill="#8b5cf6" radius={[4, 4, 0, 0]} />
-                    </BarChart>
-                  </ResponsiveContainer>
-                )
-              ) : lineData.length === 0 ? (
-                <div className="h-full grid place-items-center text-sm text-white/70">No data.</div>
-              ) : (
-                <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={lineData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                    <XAxis dataKey="day" stroke="currentColor" className="text-slate-500" fontSize={12} tickLine={false} axisLine={false} />
-                    <YAxis stroke="currentColor" className="text-slate-500" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(val) => `₹${val}`} />
-                    <Tooltip
-                      contentStyle={{
-                        background: "rgba(15, 23, 42, 0.9)",
-                        border: "1px solid rgba(59,130,246,0.3)",
-                        borderRadius: "12px",
-                        color: "white"
-                      }}
-                    />
-                    <Line type="monotone" dataKey="expense" stroke="#ef4444" strokeWidth={3} dot={{ r: 3, fill: "#ef4444", strokeWidth: 0 }} activeDot={{ r: 6, fill: "#ef4444", strokeWidth: 0 }} />
-                    <Line type="monotone" dataKey="income" stroke="#10b981" strokeWidth={3} dot={{ r: 3, fill: "#10b981", strokeWidth: 0 }} activeDot={{ r: 6, fill: "#10b981", strokeWidth: 0 }} />
-                  </LineChart>
-                </ResponsiveContainer>
-              )}
-            </div>
           </div>
         </div>
-        </div>
-        </div>
 
+      </div>
       </div>
     </div>
   );

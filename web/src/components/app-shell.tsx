@@ -41,12 +41,16 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <div className="min-h-dvh bg-slate-950 text-white relative overflow-x-hidden font-sans" style={{ background: 'radial-gradient(ellipse at top left, #0d1222 0%, #030308 50%, #000000 100%)' }}>
+    <div 
+      className="min-h-dvh bg-slate-950 text-white relative overflow-x-hidden font-sans" 
+      style={{ background: 'radial-gradient(ellipse at top left, #0d1222 0%, #030308 50%, #000000 100%)' }}
+      suppressHydrationWarning
+    >
       {/* Animated background shapes for deep mesh gradient effect */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-        <div className="absolute -top-32 -left-32 w-96 h-96 bg-indigo-600/10 rounded-full blur-[100px] mix-blend-screen" />
-        <div className="absolute top-1/3 -right-32 w-[30rem] h-[30rem] bg-purple-900/10 rounded-full blur-[120px] mix-blend-screen" />
-        <div className="absolute bottom-0 left-1/3 w-[25rem] h-[25rem] bg-blue-800/10 rounded-full blur-[100px] mix-blend-screen" />
+      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0" suppressHydrationWarning>
+        <div className="absolute -top-32 -left-32 w-96 h-96 bg-indigo-600/10 rounded-full blur-[100px] mix-blend-screen" suppressHydrationWarning />
+        <div className="absolute top-1/3 -right-32 w-[30rem] h-[30rem] bg-purple-900/10 rounded-full blur-[120px] mix-blend-screen" suppressHydrationWarning />
+        <div className="absolute bottom-0 left-1/3 w-[25rem] h-[25rem] bg-blue-800/10 rounded-full blur-[100px] mix-blend-screen" suppressHydrationWarning />
       </div>
 
       <header className="hidden md:flex sticky top-0 z-40 border-b border-white/[0.1] bg-[#0a0a0f]/70 backdrop-blur-[12px] shadow-sm">
@@ -96,15 +100,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <div className="relative z-10 mx-auto w-full max-w-5xl px-4 pb-12 pt-8">
         {children}
       </div>
-
-      {/* Floating Action Button - Mobile adjusted */}
-      <Link
-        href="/expenses"
-        className="fixed z-50 flex h-[3.25rem] w-[3.25rem] items-center justify-center rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 text-slate-950 shadow-[0_0_20px_rgba(6,182,212,0.4)] transition-all duration-300 hover:scale-105 hover:shadow-[0_0_30px_rgba(6,182,212,0.6)] active:scale-95 right-6 bottom-24 md:bottom-6"
-        aria-label="Quick add"
-      >
-        <Plus className="h-6 w-6" />
-      </Link>
 
       {/* Mobile Fixed Bottom Navigation Bar */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 rounded-t-[32px] border-t border-white/5 bg-[rgba(20,20,20,0.7)] backdrop-blur-[20px] shadow-[0_-10px_40px_rgba(0,0,0,0.5)] pb-[env(safe-area-inset-bottom)]">

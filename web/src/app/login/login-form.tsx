@@ -5,7 +5,7 @@
 import { useState, type FormEvent } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Wallet } from "lucide-react";
 
 export function LoginForm() {
   const router = useRouter();
@@ -42,27 +42,29 @@ export function LoginForm() {
   }
 
   return (
-    <div className="w-full max-w-sm rounded-2xl border border-cyan-600/40 bg-gradient-to-br from-white/10 to-white/5 p-8 shadow-2xl shadow-cyan-600/20 backdrop-blur-xl relative z-10 animate-[slideUp_0.6s_cubic-bezier(0.34,1.56,0.64,1)]">
+    <div className="w-full max-w-sm rounded-[32px] border border-white/10 bg-blue-900/10 p-8 shadow-[0_0_40px_rgba(59,130,246,0.15)] backdrop-blur-[20px] relative z-10 transition-all duration-500 hover:shadow-[0_0_50px_rgba(59,130,246,0.2)]">
       <div className="mb-8 text-center flex flex-col items-center">
-        <div className="w-24 h-24 rounded-3xl overflow-hidden bg-white flex items-center justify-center p-2 mb-4 shadow-2xl shadow-cyan-500/20 transform transition-transform hover:scale-105">
-          <img src="/logo.png" alt="Expense Tracker Logo" className="w-full h-full object-contain" />
+        <div className="w-16 h-16 rounded-[20px] bg-gradient-to-br from-cyan-400 to-emerald-500 p-[1px] shadow-[0_0_20px_rgba(6,182,212,0.3)] mb-5">
+          <div className="w-full h-full bg-black/40 backdrop-blur-sm rounded-[19px] flex items-center justify-center">
+            <Wallet className="h-8 w-8 text-cyan-300 drop-shadow-[0_0_8px_rgba(6,182,212,0.8)]" />
+          </div>
         </div>
-        <h1 className="bg-gradient-to-r from-cyan-400 via-cyan-300 to-cyan-400 bg-clip-text text-3xl font-bold text-transparent tracking-tight">
+        <h1 className="bg-gradient-to-r from-cyan-400 via-cyan-300 to-blue-400 bg-clip-text text-2xl font-bold tracking-tight text-transparent">
           Expense Tracker
         </h1>
-        <p className="mt-2 text-sm text-cyan-400/70">Sign in to your account</p>
+        <p className="mt-2 text-sm font-medium tracking-tight text-white/50">Welcome back, please sign in</p>
       </div>
 
       <form onSubmit={onSubmit} className="space-y-5">
         <div className="space-y-2">
-          <label className="text-sm font-semibold text-cyan-300" htmlFor="email">
+          <label className="text-xs font-semibold tracking-wide text-white/80 uppercase" htmlFor="email">
             Email Address
           </label>
           <input
             id="email"
             type="email"
             autoComplete="email"
-            className="w-full rounded-lg border border-cyan-600/30 bg-gradient-to-r from-cyan-600/10 to-cyan-700/10 px-4 py-2.5 text-sm text-white placeholder-white/40 outline-none transition-all duration-300 focus:border-cyan-500/60 focus:ring-2 focus:ring-cyan-500/30"
+            className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm font-medium tracking-tight text-white placeholder-white/30 outline-none transition-all duration-300 hover:bg-black/30 focus:border-cyan-500/50 focus:bg-black/40 focus:ring-1 focus:ring-cyan-500/20 focus:shadow-[0_0_20px_rgba(6,182,212,0.15)]"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="you@example.com"
@@ -71,15 +73,15 @@ export function LoginForm() {
         </div>
 
         <div className="space-y-2">
-          <label className="text-sm font-semibold text-cyan-300" htmlFor="password">
+          <label className="text-xs font-semibold tracking-wide text-white/80 uppercase" htmlFor="password">
             Password
           </label>
-          <div className="relative">
+          <div className="relative group">
             <input
               id="password"
               type={showPassword ? "text" : "password"}
               autoComplete="current-password"
-              className="w-full rounded-lg border border-cyan-600/30 bg-gradient-to-r from-cyan-600/10 to-cyan-700/10 px-4 py-2.5 pr-12 text-sm text-white placeholder-white/40 outline-none transition-all duration-300 focus:border-cyan-500/60 focus:ring-2 focus:ring-cyan-500/30"
+              className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 pr-12 text-sm font-medium tracking-tight text-white placeholder-white/30 outline-none transition-all duration-300 hover:bg-black/30 focus:border-cyan-500/50 focus:bg-black/40 focus:ring-1 focus:ring-cyan-500/20 focus:shadow-[0_0_20px_rgba(6,182,212,0.15)]"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Enter your password"
@@ -88,7 +90,7 @@ export function LoginForm() {
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-cyan-300/60 hover:text-cyan-200 transition-colors duration-200"
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-white/40 hover:text-cyan-400 transition-colors duration-200 focus:outline-none"
             >
               {showPassword ? (
                 <EyeOff className="w-4 h-4" />
@@ -100,7 +102,7 @@ export function LoginForm() {
         </div>
 
         {error ? (
-          <div className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm font-medium text-red-300 animate-[slideDown_0.3s_ease-out]">
+          <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm font-medium text-rose-300">
             {error}
           </div>
         ) : null}
@@ -108,15 +110,15 @@ export function LoginForm() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full rounded-lg bg-gradient-to-r from-cyan-600 to-cyan-700 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-cyan-600/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-700/75 hover:scale-105 disabled:opacity-60 disabled:cursor-not-allowed disabled:scale-100 active:scale-95"
+          className="mt-6 w-full rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 px-4 py-3 text-sm font-semibold tracking-wide text-white shadow-lg shadow-cyan-500/25 transition-all duration-300 hover:from-cyan-400 hover:to-blue-500 hover:shadow-[0_0_25px_rgba(6,182,212,0.4)] focus:outline-none focus:ring-2 focus:ring-cyan-400/50 active:scale-95 disabled:opacity-50 disabled:pointer-events-none"
         >
           {loading ? (
             <span className="flex items-center justify-center gap-2">
               <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              Signing in…
+              Signing in...
             </span>
           ) : (
-            "Sign in"
+            "Sign In"
           )}
         </button>
       </form>
