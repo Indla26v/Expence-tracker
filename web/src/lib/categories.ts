@@ -9,6 +9,7 @@ export const CATEGORIES = [
   "Bills",
   "Health",
   "Entertainment",
+  "Salary",
   "Other",
 ] as const;
 
@@ -25,6 +26,7 @@ export const CATEGORY_COLORS: Record<Category, string> = {
   Bills: "#f97316",
   Health: "#ef4444",
   Entertainment: "#eab308",
+  Salary: "#10b981",
   Other: "#94a3b8",
 };
 

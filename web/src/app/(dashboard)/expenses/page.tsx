@@ -348,33 +348,41 @@ export default function ExpensesPage() {
                 )
                 .sort((a, b) => new Date(b[0]).getTime() - new Date(a[0]).getTime())
                 .map(([dateKey, dayItems]) => (
-                  <div key={dateKey} className="rounded-xl bg-blue-900/30 border border-blue-500/20 overflow-hidden shadow-sm">
-                    <div className="bg-blue-900/40 px-4 py-2 border-b border-blue-500/20">
-                      <h3 className="text-xs font-semibold text-blue-200 uppercase tracking-wider">{dateKey}</h3>
+                  <div 
+                    key={dateKey} 
+                    className="group/day relative rounded-[24px] bg-blue-900/10 border border-blue-500/20 backdrop-blur-[12px] shadow-lg transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] w-full overflow-hidden hover:scale-[1.01] hover:bg-blue-900/20 hover:shadow-[0_0_30px_rgba(59,130,246,0.15)] hover:border-blue-400/30"
+                  >
+                    <div className="bg-blue-900/20 px-5 py-3 border-b border-blue-500/20">
+                      <h3 className="text-xs font-semibold text-blue-200 uppercase tracking-widest">{dateKey}</h3>
                     </div>
-                    <div className="divide-y divide-white/5">
+                    <div className="divide-y divide-blue-500/10">
                       {dayItems.map((e) => (
-                        <div key={e.id} className="flex items-center justify-between gap-3 px-4 py-3 hover:bg-white/5 transition-colors">
+                        <div
+                          key={e.id}
+                          className="flex items-center justify-between gap-3 px-5 py-4 hover:bg-blue-500/10 transition-colors group/item"
+                        >
                           <div className="min-w-0">
-                            <div className="truncate text-sm font-medium text-white">
+                            <div className="truncate text-sm font-medium tracking-tight text-white group-hover/item:text-blue-50 transition-colors">
                               <span className="inline-flex items-center gap-2">
                                 <span
-                                  className="h-2.5 w-2.5 rounded-full"
+                                  className="h-2.5 w-2.5 shrink-0 rounded-full"
                                   style={{
-                                    background:
-                                      CATEGORY_COLORS[e.category as Category] ?? "rgba(148,163,184,1)",
+                                    background: CATEGORY_COLORS[e.category as Category] ?? "rgba(148,163,184,1)",
                                   }}
                                 />
                                 {e.category}
                               </span>
-                              {e.note ? <span className="text-white/60"> — {e.note}</span> : null}
+                              {e.note ? <span className="text-white/40 group-hover/item:text-white/60 transition-colors"> — {e.note}</span> : null}
                             </div>
-                            <div className="text-xs text-white/60 mt-1">
+                            <div className="text-xs tracking-tight text-white/40 group-hover/item:text-white/60 mt-1 transition-colors flex items-center gap-1">
+                              <div className="w-[1.125rem] shrink-0" />
                               {format(new Date(e.date), "HH:mm")} • {e.type}
                             </div>
                           </div>
                           <div className="flex items-center gap-4">
-                            <div className={`text-base font-semibold ${e.type === "expense" ? "text-rose-400" : "text-emerald-400"}`}>
+                            <div className={`text-base tracking-tight font-semibold transition-colors ${
+                              e.type === "expense" ? "text-rose-400 group-hover/item:text-rose-300" : "text-emerald-400 group-hover/item:text-emerald-300"
+                            }`}>
                               {e.type === "expense" ? "-" : "+"}₹{e.amount.toFixed(2)}
                             </div>
                             <div className="flex items-center gap-2">
