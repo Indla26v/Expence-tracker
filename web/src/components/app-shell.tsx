@@ -40,19 +40,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <div className="min-h-dvh bg-slate-950 text-white relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #050510 0%, #0a0a15 50%, #040608 100%)' }}>
-      {/* Animated background shapes */}
+    <div className="min-h-dvh bg-slate-950 text-white relative overflow-hidden" style={{ background: 'radial-gradient(ellipse at top left, #0d1222 0%, #030308 50%, #000000 100%)' }}>
+      {/* Animated background shapes for deep mesh gradient effect */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-        {/* Floating circles */}
-        <div className="absolute top-10 left-10 w-64 h-64 bg-cyan-400/5 rounded-full blur-3xl animate-[float_12s_ease-in-out_infinite]" />
-        <div className="absolute top-1/2 right-20 w-80 h-80 bg-cyan-300/5 rounded-full blur-3xl animate-[floatReverse_14s_ease-in-out_infinite]" />
-        <div className="absolute bottom-20 left-1/3 w-72 h-72 bg-cyan-500/5 rounded-full blur-3xl animate-[pulse_15s_ease-in-out_infinite]" />
-        
-        {/* Morphing blobs */}
-        <div className="absolute top-20 right-10 w-52 h-52 bg-cyan-400/4 rounded-full blur-2xl animate-[morph_11s_ease-in-out_infinite]" />
-        <div className="absolute bottom-10 right-1/3 w-48 h-48 bg-cyan-500/4 rounded-full blur-2xl animate-[morph_13s_ease-in-out_infinite_3s]" />
+        <div className="absolute -top-32 -left-32 w-96 h-96 bg-indigo-600/10 rounded-full blur-[100px] mix-blend-screen" />
+        <div className="absolute top-1/3 -right-32 w-[30rem] h-[30rem] bg-purple-900/10 rounded-full blur-[120px] mix-blend-screen" />
+        <div className="absolute bottom-0 left-1/3 w-[25rem] h-[25rem] bg-blue-800/10 rounded-full blur-[100px] mix-blend-screen" />
       </div>
-      <header className="sticky top-0 z-20 border-b border-white/10 bg-black/60 backdrop-blur">
+      <header className="sticky top-0 z-20 border-b border-white/5 bg-black/20 backdrop-blur-[20px] saturate-150">
         <div className="mx-auto flex w-full items-center justify-between max-w-5xl px-4 py-3">
           <div className="flex items-center gap-2">
             <Link href="/" className="flex items-center gap-3 group">

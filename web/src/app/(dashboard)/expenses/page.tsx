@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { addDays, format, startOfWeek } from "date-fns";
 import { CATEGORIES, CATEGORY_COLORS, type Category } from "@/lib/categories";
 import { toIST, startOfMonthIST, IST_OFFSET_MS } from "@/lib/date";
+import { TransactionActions } from "@/components/transaction-actions";
 
 type Expense = {
   id: string;
@@ -205,110 +206,31 @@ export default function ExpensesPage() {
   return (
     <div className="flex flex-col h-auto lg:h-[calc(100vh-6rem)] space-y-6">
       {/* Header */}
-      <div className="flex shrink-0 items-center justify-between gap-4 animate-[slideDown_0.6s_cubic-bezier(0.34,1.56,0.64,1)]">
+      <div className="flex shrink-0 items-center justify-between gap-4 flex-wrap animate-[slideDown_0.6s_cubic-bezier(0.34,1.56,0.64,1)]">
         <div>
           <h1 className="bg-gradient-to-r from-cyan-400 via-cyan-300 to-cyan-400 bg-clip-text text-3xl font-bold text-transparent">
             Expenses
           </h1>
           <p className="mt-1 text-sm text-cyan-400/70">Add, search, and manage transactions</p>
         </div>
-        <button
-          onClick={exportCsv}
-          className="rounded-lg border border-cyan-500/50 bg-slate-950/60 backdrop-blur-sm px-4 py-2 text-sm font-medium text-cyan-300 hover:border-cyan-400/60 hover:shadow-lg hover:shadow-cyan-600/20 transition-all duration-300"
-        >
-          Export CSV
-        </button>
+        <div className="flex items-center gap-4">
+          <TransactionActions onAddSuccess={() => load()} />
+          <button
+            onClick={exportCsv}
+            className="rounded-lg border border-cyan-500/50 bg-slate-950/60 backdrop-blur-sm px-4 py-2 text-sm font-medium text-cyan-300 hover:border-cyan-400/60 hover:shadow-lg hover:shadow-cyan-600/20 transition-all duration-300 h-[42px]"
+          >
+            Export CSV
+          </button>
+        </div>
       </div>
 
-      <div className="flex flex-1 flex-col lg:flex-row gap-6 min-h-0 pb-6 lg:overflow-hidden">
-        {/* Left Column: Add New Transaction (fixed, ~30%) */}
-        <div className="w-full lg:w-[30%] shrink-0">
-          <div className="rounded-2xl border border-cyan-500/30 bg-slate-950/60 backdrop-blur-md p-6 shadow-lg shadow-cyan-900/30 sticky top-0 animate-[slideUp_0.6s_cubic-bezier(0.34,1.56,0.64,1)_0.1s_backwards]">
-            <h2 className="text-sm font-semibold bg-gradient-to-r from-cyan-300 to-cyan-400 bg-clip-text text-transparent mb-4">Add New Transaction</h2>
-            <div className="grid gap-3 sm:grid-cols-1">
-              <div>
-                <label className="text-xs font-medium text-cyan-300">Type</label>
-                <select
-                  value={type}
-                  onChange={(e) => setType(e.target.value as Expense["type"])}
-                  className="mt-1 w-full rounded-lg border border-cyan-600/30 bg-slate-800/50 px-3 py-2 text-sm text-white focus:border-cyan-400/60 focus:ring-2 focus:ring-cyan-400/30 outline-none transition-all dark:[&>option]:bg-slate-900 dark:[&>option]:text-white"
-                >
-                  <option value="expense">Expense</option>
-                  <option value="income">Income</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="text-xs font-medium text-cyan-300">Category</label>
-                <select
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value as (typeof CATEGORIES)[number])}
-                  className="mt-1 w-full rounded-lg border border-cyan-600/30 bg-slate-800/50 px-3 py-2 text-sm text-white focus:border-cyan-400/60 focus:ring-2 focus:ring-cyan-400/30 outline-none transition-all dark:[&>option]:bg-slate-900 dark:[&>option]:text-white"
-                >
-                  {CATEGORIES.map((c) => (
-                    <option key={c} value={c}>
-                      {c}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="text-xs font-medium text-cyan-300">Amount</label>
-                <input
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
-                  inputMode="decimal"
-                  placeholder="0.00"
-                  className="mt-0.5 w-full rounded-md border border-cyan-600/30 bg-slate-800/50 px-2 py-1 text-xs text-white placeholder-white/40 focus:border-cyan-400/60 focus:ring-2 focus:ring-cyan-400/30 outline-none transition-all"
-                />
-              </div>
-
-              <div>
-                <label className="text-xs font-medium text-cyan-300">Date & Time</label>
-                <input
-                  type="datetime-local"
-                  value={date}
-                  onChange={(e) => setDate(e.target.value)}
-                  className="mt-1 w-full rounded-lg border border-cyan-600/30 bg-slate-800/50 px-3 py-2 text-sm text-white focus:border-cyan-400/60 focus:ring-2 focus:ring-cyan-400/30 outline-none transition-all"
-                />
-              </div>
-
-              <div>
-                <label className="text-xs font-medium text-cyan-300">Note (optional)</label>
-                <input
-                  value={note}
-                  onChange={(e) => setNote(e.target.value)}
-                  placeholder="e.g. Lunch"
-                  className="mt-1 w-full rounded-lg border border-cyan-600/30 bg-slate-800/50 px-3 py-2 text-sm text-white placeholder-white/40 focus:border-cyan-400/60 focus:ring-2 focus:ring-cyan-400/30 outline-none transition-all"
-                />
-              </div>
-            </div>
-
-            {error ? (
-              <div className="mt-4 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm font-medium text-red-300 animate-[slideDown_0.3s_ease-out]">
-                {error}
-              </div>
-            ) : null}
-
-            <div className="mt-4 flex items-center justify-end">
-              <button
-                onClick={() => void onAdd()}
-                disabled={saving || !amount}
-                className="w-full rounded-lg bg-gradient-to-r from-cyan-600 to-cyan-700 px-4 py-2 text-sm font-semibold text-white shadow-md shadow-cyan-600/30 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-700/50 hover:scale-[1.02] disabled:opacity-60 disabled:cursor-not-allowed disabled:scale-100 active:scale-95"
-              >
-                {saving ? "Saving…" : "Add Transaction"}
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Right Column: Transactions List + Filters (~70%) */}
-        <div className="w-full lg:w-[70%] flex flex-col gap-4 lg:overflow-hidden">
+      <div className="flex flex-1 flex-col gap-6 min-h-0 pb-6 lg:overflow-hidden">
+        {/* Full width: Transactions List + Filters */}
+        <div className="w-full flex flex-col gap-4 lg:overflow-hidden">
           
-          {/* Filter/Search Bar */}
-          <div className="shrink-0 rounded-2xl border border-cyan-500/30 bg-slate-950/60 backdrop-blur-md p-4 sm:p-6 shadow-lg shadow-cyan-900/30 z-10 animate-[slideDown_0.6s_cubic-bezier(0.34,1.56,0.64,1)]">
-            <div className="flex flex-col gap-4">
+          <div className="shrink-0 liquid-glass ambient-shadow overflow-hidden p-6 relative z-10 animate-[slideDown_0.6s_cubic-bezier(0.34,1.56,0.64,1)]">
+            <div className="absolute inset-0 bg-white/[0.01] border-b border-white/5" />
+            <div className="relative flex flex-col gap-5">
               <div className="flex flex-wrap items-center gap-2">
                 {(
                   [
@@ -321,10 +243,10 @@ export default function ExpensesPage() {
                   <button
                     key={id}
                     onClick={() => setRangePreset(id)}
-                    className={`rounded-lg border px-3 py-1.5 text-xs font-medium transition-all duration-300 ${
+                    className={`rounded-full px-4 py-2 text-xs font-semibold tracking-tight transition-all duration-300 ${
                       rangePreset === id
-                        ? "border-cyan-400/60 bg-gradient-to-r from-cyan-600 to-cyan-700 text-white shadow-md shadow-cyan-600/30"
-                        : "border-cyan-600/30 text-cyan-300 hover:border-cyan-400/60 hover:bg-cyan-600/20"
+                        ? "bg-white/10 text-white shadow-[inset_0_1px_0_0_rgba(255,255,255,0.2)] drop-shadow-[0_0_8px_rgba(255,255,255,0.2)]"
+                        : "bg-black/20 text-white/50 hover:bg-white/5 hover:text-white/80 border border-white/5 shadow-[inset_0_2px_8px_rgba(0,0,0,0.4)]"
                     }`}
                   >
                     {label}
@@ -341,10 +263,10 @@ export default function ExpensesPage() {
                       <button
                         key={m}
                         onClick={() => setMonth(m)}
-                        className={`rounded-full px-3 py-1.5 text-xs font-semibold transition-all duration-300 ${
+                        className={`rounded-full px-3 py-1.5 text-xs font-medium tracking-tight transition-all duration-300 ${
                           isActive 
-                            ? "bg-cyan-500 shadow-[0_0_10px_rgba(6,182,212,0.6)] text-slate-950 scale-110 border border-cyan-400"
-                            : "bg-slate-800/60 text-cyan-300/70 hover:bg-cyan-900/40 hover:text-cyan-200 border border-cyan-700/30"
+                            ? "bg-cyan-500/20 text-cyan-300 shadow-[0_0_12px_rgba(6,182,212,0.3)] scale-105 border border-cyan-400/30"
+                            : "bg-black/20 text-white/40 hover:bg-white/5 hover:text-white/80 shadow-[inset_0_2px_8px_rgba(0,0,0,0.4)] border border-transparent"
                         }`}
                       >
                         {monthName}
@@ -356,24 +278,24 @@ export default function ExpensesPage() {
 
               <div className="grid gap-4 sm:grid-cols-4">
                 <div className="sm:col-span-1">
-                  <label className="text-xs font-medium text-cyan-300">Year</label>
+                  <label className="text-xs font-medium tracking-tight text-white/60 mb-2 block">Year</label>
                   <input
                     type="number"
                     min={1970}
                     max={3000}
                     value={year}
                     onChange={(e) => setYear(Number(e.target.value))}
-                    className="mt-0.5 w-full rounded-md border border-cyan-600/30 bg-slate-800/50 px-2 py-1 text-xs text-white placeholder-white/40 focus:border-cyan-400/60 focus:ring-2 focus:ring-cyan-400/30 outline-none transition-all disabled:opacity-50"
+                    className="w-full rounded-[16px] bg-black/30 px-4 py-3 text-sm tracking-tight text-white placeholder-white/20 shadow-[inset_0_2px_12px_rgba(0,0,0,0.5)] outline-none ring-1 ring-white/5 transition-all focus:bg-black/40 focus:ring-white/20 hover:bg-black/20 disabled:opacity-50"
                     disabled={rangePreset === "week"}
                   />
                 </div>
                 <div className="sm:col-span-3">
-                  <label className="text-xs font-medium text-cyan-300">Search</label>
+                  <label className="text-xs font-medium tracking-tight text-white/60 mb-2 block">Search</label>
                   <input
                     value={q}
                     onChange={(e) => setQ(e.target.value)}
                     placeholder="Search by note or category…"
-                    className="mt-0.5 w-full rounded-md border border-cyan-600/30 bg-slate-800/50 px-2 py-1 text-xs text-white placeholder-white/40 focus:border-cyan-400/60 focus:ring-2 focus:ring-cyan-400/30 outline-none transition-all"
+                    className="w-full rounded-[16px] bg-black/30 px-4 py-3 text-sm tracking-tight text-white placeholder-white/20 shadow-[inset_0_2px_12px_rgba(0,0,0,0.5)] outline-none ring-1 ring-white/5 transition-all focus:bg-black/40 focus:ring-white/20 hover:bg-black/20"
                   />
                 </div>
                 
