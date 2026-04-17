@@ -123,6 +123,12 @@ export default function ExpensesPage() {
 
   async function onEditSave() {
     if (!editing) return;
+    
+    if (!editAmount || isNaN(Number(editAmount)) || Number(editAmount) <= 0) {
+      setError("Amount must be greater than 0");
+      return;
+    }
+    
     setEditSaving(true);
     setError(null);
     try {
@@ -408,6 +414,11 @@ export default function ExpensesPage() {
       {editing ? (
         <div className="fixed inset-0 z-50 grid place-items-center bg-black/60 p-4 backdrop-blur-sm">
           <div className="w-full max-w-lg rounded-xl border border-white/10 bg-slate-900 p-4 shadow-2xl">
+            {error && (
+              <div className="mb-4 rounded-lg bg-red-500/10 p-3 text-sm text-red-400 border border-red-500/20 text-center">
+                {error}
+              </div>
+            )}
             <div className="flex items-center justify-between border-b border-white/10 pb-3 mb-4">
               <div className="text-sm font-semibold text-white">Edit transaction</div>
               <button

@@ -36,6 +36,11 @@ export function TransactionActions({ onAddSuccess }: { onAddSuccess?: () => void
       return;
     }
     
+    if (Number(amount) <= 0) {
+      setError("Amount must be greater than 0");
+      return;
+    }
+    
     setSaving(true);
     setError(null);
     
