@@ -135,6 +135,8 @@ export default function SettingsPage() {
   const [catError, setCatError] = useState<string | null>(null);
   const [catSuccess, setCatSuccess] = useState<string | null>(null);
 
+  const [categoriesExpanded, setCategoriesExpanded] = useState(false);
+
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -357,20 +359,29 @@ export default function SettingsPage() {
           </div>
 
           <div className="space-y-4">
-            <div>
-              <label className="mb-2 block text-xs font-semibold tracking-wide text-white/80 uppercase">Base Amount</label>
-              <div className="relative group">
-                <div className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-white/40 group-focus-within:text-cyan-400 transition-colors">
-                  <IndianRupee className="h-4 w-4" />
+            <div className="flex flex-col sm:flex-row sm:items-end gap-3">
+              <div className="flex-1">
+                <label className="mb-2 block text-xs font-semibold tracking-wide text-white/80 uppercase">Base Amount</label>
+                <div className="relative group">
+                  <div className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-white/40 group-focus-within:text-cyan-400 transition-colors">
+                    <IndianRupee className="h-4 w-4" />
+                  </div>
+                  <input
+                    value={initialBalance}
+                    onChange={(e) => setInitialBalance(e.target.value)}
+                    inputMode="decimal"
+                    placeholder="0.00"
+                    className="w-full rounded-xl border border-white/10 bg-black/20 pl-10 pr-4 h-[46px] text-sm font-medium tracking-tight text-white placeholder-white/30 outline-none ring-1 ring-transparent transition-all hover:bg-black/30 focus:border-cyan-500/50 focus:bg-black/40 focus:ring-cyan-500/20 focus:shadow-[0_0_20px_rgba(6,182,212,0.15)]"
+                  />
                 </div>
-                <input
-                  value={initialBalance}
-                  onChange={(e) => setInitialBalance(e.target.value)}
-                  inputMode="decimal"
-                  placeholder="0.00"
-                  className="w-full rounded-xl border border-white/10 bg-black/20 pl-10 pr-4 py-3 text-sm font-medium tracking-tight text-white placeholder-white/30 outline-none ring-1 ring-transparent transition-all hover:bg-black/30 focus:border-cyan-500/50 focus:bg-black/40 focus:ring-cyan-500/20 focus:shadow-[0_0_20px_rgba(6,182,212,0.15)]"
-                />
               </div>
+              <button
+                onClick={() => void onSaveBalance()}
+                disabled={savingBalance || loadingSettings}
+                className="shrink-0 h-[46px] rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 px-6 text-sm font-semibold tracking-wide text-white shadow-lg shadow-cyan-500/25 hover:from-cyan-400 hover:to-blue-500 hover:shadow-cyan-400/40 focus:outline-none focus:ring-2 focus:ring-cyan-400/50 active:scale-95 disabled:opacity-50 disabled:pointer-events-none transition-all duration-300"
+              >
+                {savingBalance ? "Saving..." : "Save Baseline"}
+              </button>
             </div>
 
             {balanceError && (
@@ -378,16 +389,6 @@ export default function SettingsPage() {
                 {balanceError}
               </div>
             )}
-
-            <div className="flex justify-end pt-2">
-              <button
-                onClick={() => void onSaveBalance()}
-                disabled={savingBalance || loadingSettings}
-                className="rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 px-6 py-2.5 text-sm font-semibold tracking-wide text-white shadow-lg shadow-cyan-500/25 hover:from-cyan-400 hover:to-blue-500 hover:shadow-cyan-400/40 focus:outline-none focus:ring-2 focus:ring-cyan-400/50 active:scale-95 disabled:opacity-50 disabled:pointer-events-none transition-all duration-300"
-              >
-                {savingBalance ? "Saving..." : "Save Baseline"}
-              </button>
-            </div>
           </div>
         </div>
 
@@ -418,13 +419,13 @@ export default function SettingsPage() {
             </div>
           </div>
 
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            <div className="z-[80] relative">
+          <div className="flex flex-col sm:flex-row sm:items-end gap-4 w-full">
+            <div className="flex-1 z-[80] relative">
               <label className="mb-2 block text-xs font-semibold tracking-wide text-white/80 uppercase">Month</label>
               <DropdownMenu.Root open={budgetMonthMenuOpen} onOpenChange={setBudgetMonthMenuOpen}>
                 <DropdownMenu.Trigger asChild>
-                  <button className="relative flex w-full items-center justify-between overflow-hidden rounded-xl border border-white/[0.08] bg-white/[0.04] p-[1px] text-sm font-medium tracking-tight text-white/90 shadow-[0_4px_24px_rgba(0,0,0,0.4)] backdrop-blur-2xl transition-all hover:bg-white/[0.06] hover:shadow-[0_4px_32px_rgba(0,0,0,0.5)] focus:outline-none focus:ring-2 focus:ring-indigo-500/50">
-                    <div className="flex h-11 w-full items-center justify-between rounded-[10px] bg-gradient-to-b from-white/[0.05] to-transparent pl-3 pr-4">
+                  <button className="relative flex w-full items-center justify-between overflow-hidden rounded-xl border border-white/[0.08] bg-white/[0.04] p-[1px] h-[46px] text-sm font-medium tracking-tight text-white/90 shadow-[0_4px_24px_rgba(0,0,0,0.4)] backdrop-blur-2xl transition-all hover:bg-white/[0.06] hover:shadow-[0_4px_32px_rgba(0,0,0,0.5)] focus:outline-none focus:ring-2 focus:ring-indigo-500/50">
+                    <div className="flex h-full w-full items-center justify-between rounded-[10px] bg-gradient-to-b from-white/[0.05] to-transparent pl-3 pr-4">
                       <div className="flex items-center gap-2.5">
                         <Calendar className="h-4 w-4 text-indigo-400" />
                         <span className="text-white/90 tracking-tight">
@@ -479,7 +480,7 @@ export default function SettingsPage() {
               </DropdownMenu.Root>
             </div>
 
-            <div>
+            <div className="flex-1 min-w-[120px]">
               <label className="mb-2 block text-xs font-semibold tracking-wide text-white/80 uppercase">Year</label>
               <div className="relative group">
                 <div className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-white/40 group-focus-within:text-indigo-400 transition-colors">
@@ -491,12 +492,12 @@ export default function SettingsPage() {
                   max={3000}
                   value={year}
                   onChange={(e) => setYear(Number(e.target.value))}
-                  className="w-full rounded-xl border border-white/10 bg-black/20 pl-10 pr-4 py-3 text-sm font-medium tracking-tight text-white outline-none ring-1 ring-transparent transition-all hover:bg-black/30 focus:border-indigo-500/50 focus:bg-black/40 focus:ring-indigo-500/20 focus:shadow-[0_0_20px_rgba(99,102,241,0.15)]"
+                  className="w-full rounded-xl border border-white/10 bg-black/20 pl-10 pr-4 h-[46px] text-sm font-medium tracking-tight text-white outline-none ring-1 ring-transparent transition-all hover:bg-black/30 focus:border-indigo-500/50 focus:bg-black/40 focus:ring-indigo-500/20 focus:shadow-[0_0_20px_rgba(99,102,241,0.15)]"
                 />
               </div>
             </div>
 
-            <div className="sm:col-span-2 lg:col-span-1">
+            <div className="flex-[2]">
               <label className="mb-2 block text-xs font-semibold tracking-wide text-white/80 uppercase">Amount</label>
               <div className="relative group">
                 <div className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-white/40 group-focus-within:text-indigo-400 transition-colors">
@@ -507,10 +508,18 @@ export default function SettingsPage() {
                   onChange={(e) => setAmount(e.target.value)}
                   inputMode="decimal"
                   placeholder="0.00"
-                  className="w-full rounded-xl border border-white/10 bg-black/20 pl-10 pr-4 py-3 text-sm font-medium tracking-tight text-white placeholder-white/30 outline-none ring-1 ring-transparent transition-all hover:bg-black/30 focus:border-indigo-500/50 focus:bg-black/40 focus:ring-indigo-500/20 focus:shadow-[0_0_20px_rgba(99,102,241,0.15)]"
+                  className="w-full rounded-xl border border-white/10 bg-black/20 pl-10 pr-4 h-[46px] text-sm font-medium tracking-tight text-white placeholder-white/30 outline-none ring-1 ring-transparent transition-all hover:bg-black/30 focus:border-indigo-500/50 focus:bg-black/40 focus:ring-indigo-500/20 focus:shadow-[0_0_20px_rgba(99,102,241,0.15)]"
                 />
               </div>
             </div>
+
+            <button
+              onClick={() => void onSaveBudget()}
+              disabled={saving || !amount}
+              className="shrink-0 h-[46px] rounded-xl bg-gradient-to-r from-indigo-500 to-violet-600 px-6 text-sm font-semibold tracking-wide text-white shadow-lg shadow-indigo-500/25 hover:from-indigo-400 hover:to-violet-500 hover:shadow-indigo-400/40 focus:outline-none focus:ring-2 focus:ring-indigo-400/50 active:scale-95 disabled:opacity-50 disabled:pointer-events-none transition-all duration-300"
+            >
+              {saving ? "Saving..." : "Save Limit"}
+            </button>
           </div>
 
           {error && (
@@ -518,16 +527,6 @@ export default function SettingsPage() {
               {error}
             </div>
           )}
-
-          <div className="flex justify-end pt-6">
-            <button
-              onClick={() => void onSaveBudget()}
-              disabled={saving || !amount}
-              className="rounded-xl bg-gradient-to-r from-indigo-500 to-violet-600 px-6 py-2.5 text-sm font-semibold tracking-wide text-white shadow-lg shadow-indigo-500/25 hover:from-indigo-400 hover:to-violet-500 hover:shadow-indigo-400/40 focus:outline-none focus:ring-2 focus:ring-indigo-400/50 active:scale-95 disabled:opacity-50 disabled:pointer-events-none transition-all duration-300"
-            >
-              {saving ? "Saving..." : "Save Limit"}
-            </button>
-          </div>
         </div>
 
         {/* Category Management Section */}
@@ -588,7 +587,7 @@ export default function SettingsPage() {
             </div>
           )}
 
-          <div className="space-y-2 mb-5">
+          <div className="space-y-4 mb-5">
             {categoriesLoading ? (
               <div className="flex items-center justify-center py-8">
                 <Loader2 className="h-5 w-5 animate-spin text-white/40" />
@@ -596,30 +595,48 @@ export default function SettingsPage() {
             ) : (activeCategoryTab === "expense" ? expenseCategories : incomeCategories).length === 0 ? (
               <div className="py-6 text-center text-sm text-white/40">No {activeCategoryTab} categories yet.</div>
             ) : (
-              <DndContext 
-                sensors={sensors}
-                collisionDetection={closestCenter}
-                onDragEnd={handleDragEnd}
-              >
-                <SortableContext 
-                  items={(activeCategoryTab === "expense" ? expenseCategories : incomeCategories).map(c => c.id)}
-                  strategy={verticalListSortingStrategy}
+              <>
+                <DndContext 
+                  sensors={sensors}
+                  collisionDetection={closestCenter}
+                  onDragEnd={handleDragEnd}
                 >
-                  <div className="grid gap-2">
-                    {(activeCategoryTab === "expense" ? expenseCategories : incomeCategories).map((cat) => (
-                      <SortableCategoryItem 
-                        key={cat.id} 
-                        cat={cat} 
-                        catDeleting={catDeleting}
-                        setCatDeleting={setCatDeleting}
-                        setCatError={setCatError}
-                        setCatSuccess={setCatSuccess}
-                        deleteCategory={deleteCategory}
-                      />
-                    ))}
+                  <SortableContext 
+                    items={(activeCategoryTab === "expense" ? expenseCategories : incomeCategories).map(c => c.id)}
+                    strategy={verticalListSortingStrategy}
+                  >
+                    <div 
+                      className={`grid gap-2 overflow-hidden transition-[max-height] duration-500 ease-in-out`}
+                      style={{ maxHeight: categoriesExpanded ? '2000px' : '108px' }}
+                    >
+                      {(activeCategoryTab === "expense" ? expenseCategories : incomeCategories).map((cat) => (
+                        <SortableCategoryItem 
+                          key={cat.id} 
+                          cat={cat} 
+                          catDeleting={catDeleting}
+                          setCatDeleting={setCatDeleting}
+                          setCatError={setCatError}
+                          setCatSuccess={setCatSuccess}
+                          deleteCategory={deleteCategory}
+                        />
+                      ))}
+                    </div>
+                  </SortableContext>
+                </DndContext>
+                
+                {(activeCategoryTab === "expense" ? expenseCategories : incomeCategories).length > 2 && (
+                  <div className="flex justify-center pt-2">
+                    <button
+                      onClick={() => setCategoriesExpanded(!categoriesExpanded)}
+                      className={`text-xs font-semibold tracking-wide transition-colors ${
+                        activeCategoryTab === 'expense' ? 'text-rose-400/70 hover:text-rose-300' : 'text-emerald-400/70 hover:text-emerald-300'
+                      }`}
+                    >
+                      {categoriesExpanded ? "Show Less" : "Show All"}
+                    </button>
                   </div>
-                </SortableContext>
-              </DndContext>
+                )}
+              </>
             )}
           </div>
 
