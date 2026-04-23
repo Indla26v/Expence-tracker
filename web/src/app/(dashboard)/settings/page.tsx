@@ -11,6 +11,7 @@ import {
   closestCenter,
   KeyboardSensor,
   PointerSensor,
+  TouchSensor,
   useSensor,
   useSensors,
   DragEndEvent,
@@ -59,7 +60,7 @@ function SortableCategoryItem({ cat, catDeleting, setCatDeleting, setCatError, s
         <button
           {...listeners}
           {...attributes}
-          className="cursor-grab active:cursor-grabbing p-1.5 -ml-1.5 text-white/20 hover:text-white/60 transition-colors"
+          className="cursor-grab active:cursor-grabbing p-1.5 -ml-1.5 text-white/20 hover:text-white/60 transition-colors touch-none"
           title="Drag to reorder"
         >
           <GripVertical className="h-4 w-4" />
@@ -138,6 +139,12 @@ export default function SettingsPage() {
     useSensor(PointerSensor, {
       activationConstraint: {
         distance: 5,
+      },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 250,
+        tolerance: 5,
       },
     }),
     useSensor(KeyboardSensor, {
