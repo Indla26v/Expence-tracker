@@ -39,3 +39,14 @@ model Budget {
   @@index([year, month])
 }
 
+model Category {
+  id        String   @id @default(cuid())
+  name      String
+  type      String   // "expense" | "income"
+  color     String   @default("#94a3b8")
+  createdAt DateTime @default(now())
+
+  @@unique([name, type])
+  @@index([type])
+}
+

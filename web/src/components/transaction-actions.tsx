@@ -1,21 +1,23 @@
 "use client";
 
 import React, { useState } from "react";
-import { CATEGORIES, CATEGORY_COLORS, type Category } from "@/lib/categories";
+import { getCategoryColor } from "@/lib/categories";
+import { useCategoryContext } from "@/components/category-context";
 import { useRouter } from "next/navigation";
 import { formatIST, parseIST } from "@/lib/date";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 
 type TransactionType = "income" | "expense" | null;
 
 export function TransactionActions({ onAddSuccess }: { onAddSuccess?: () => void }) {
   const router = useRouter();
+  const { expenseCategories, incomeCategories } = useCategoryContext();
   const [modalType, setModalType] = useState<TransactionType>(null);
   
   const [amount, setAmount] = useState("");
-  const [category, setCategory] = useState<Category>("Lunch");
+  const [category, setCategory] = useState("");
   const [date, setDate] = useState(() => formatIST(new Date(), "yyyy-MM-dd'T'HH:mm"));
   const [note, setNote] = useState("");
   const [saving, setSaving] = useState(false);
@@ -27,7 +29,7 @@ export function TransactionActions({ onAddSuccess }: { onAddSuccess?: () => void
     setAmount("");
     setNote("");
     setDate(formatIST(new Date(), "yyyy-MM-dd'T'HH:mm"));
-    setCategory(type === "income" ? "Salary" : "Lunch");
+    setCategory("");
   };
 
   const handleSave = async () => {
@@ -38,6 +40,11 @@ export function TransactionActions({ onAddSuccess }: { onAddSuccess?: () => void
     
     if (Number(amount) <= 0) {
       setError("Amount must be greater than 0");
+      return;
+    }
+
+    if (!category) {
+      setError("Please select a category");
       return;
     }
     
@@ -74,6 +81,13 @@ export function TransactionActions({ onAddSuccess }: { onAddSuccess?: () => void
       setSaving(false);
     }
   };
+
+  // Determine which category list to show based on modal type
+  const currentCategories = modalType === "income" ? incomeCategories : expenseCategories;
+
+  // Find color for selected category
+  const selectedCatObj = currentCategories.find((c) => c.name === category);
+  const selectedColor = getCategoryColor(category, selectedCatObj?.color);
 
   return (
     <>
@@ -176,14 +190,22 @@ export function TransactionActions({ onAddSuccess }: { onAddSuccess?: () => void
                           className="group flex w-full appearance-none items-center justify-between rounded-[20px] bg-slate-900/40 bg-gradient-to-b from-blue-500/5 to-transparent px-6 py-4 text-white placeholder-white/30 backdrop-blur-[16px] shadow-[inset_0_1px_1px_rgba(255,255,255,0.05),0_8px_32px_-8px_rgba(0,0,0,0.5)] outline-none border border-white/10 transition-all hover:border-blue-400/40 focus:border-blue-400/60 focus:shadow-[0_0_24px_rgba(59,130,246,0.3)] focus:bg-slate-800/50"
                         >
                           <span className="font-medium tracking-tight text-white/90 flex items-center gap-3">
-                            <div
-                              className="h-2.5 w-2.5 shrink-0 rounded-full shadow-[0_0_10px_rgba(255,255,255,0.2)]"
-                              style={{
-                                background: CATEGORY_COLORS[category as Category] ?? "#94a3b8",
-                                boxShadow: `0 0 10px ${CATEGORY_COLORS[category as Category] ?? "#94a3b8"}40`
-                              }}
-                            />
-                            {category || "Select Category"}
+                            {category ? (
+                              <>
+                                <div
+                                  className="h-2.5 w-2.5 shrink-0 rounded-full shadow-[0_0_10px_rgba(255,255,255,0.2)]"
+                                  style={{
+                                    background: selectedColor,
+                                    boxShadow: `0 0 10px ${selectedColor}40`
+                                  }}
+                                />
+                                {category}
+                              </>
+                            ) : (
+                              <span className="text-white/40">
+                                {modalType === "income" ? "Select Income Type" : "Select Category"}
+                              </span>
+                            )}
                           </span>
                           <ChevronDown className="h-5 w-5 text-white/40 transition-transform group-data-[state=open]:rotate-180" />
                         </button>
@@ -207,44 +229,48 @@ export function TransactionActions({ onAddSuccess }: { onAddSuccess?: () => void
                             className="bg-slate-900/60 bg-gradient-to-b from-white/[0.05] to-transparent backdrop-blur-[24px] border border-white/10 rounded-[24px] shadow-[0_0_40px_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,255,255,0.1)] outline-none saturate-200"
                           >
                             <div className="max-h-[300px] overflow-y-auto px-1 py-2 custom-scrollbar">
-                              {(modalType === "income" 
-                                ? (["Salary", "Budget Allowance", "Others"] as Category[]) 
-                                : CATEGORIES.filter(c => !["Salary", "Budget Allowance", "Others"].includes(c))
-                              ).map((c) => {
-                                const isSelected = category === c;
-                                return (
-                                  <DropdownMenu.Item
-                                    key={c}
-                                    onSelect={() => setCategory(c)}
-                                    className={`relative flex cursor-pointer select-none items-center rounded-[16px] px-4 py-3 text-sm font-medium tracking-tight outline-none transition-all duration-200 focus:bg-white/10 data-[highlighted]:bg-white/10 ${
-                                      isSelected
-                                        ? "text-white/100"
-                                        : "text-white/70 hover:text-white"
-                                    }`}
-                                  >
-                                    <div className="relative z-10 flex items-center gap-3 w-full">
-                                      <div
-                                        className="h-2.5 w-2.5 shrink-0 rounded-full shadow-[0_0_10px_rgba(255,255,255,0.2)]"
-                                        style={{
-                                          background: CATEGORY_COLORS[c as Category] ?? "#94a3b8",
-                                          boxShadow: `0 0 10px ${CATEGORY_COLORS[c as Category] ?? "#94a3b8"}40`
-                                        }}
-                                      />
-                                      <span>{c}</span>
-                                    </div>
-                                    {isSelected && (
-                                      <motion.div
-                                        layoutId="activeCategory"
-                                        className={`absolute inset-0 z-0 rounded-[16px] opacity-20 ${
-                                          modalType === "income"
-                                            ? "bg-emerald-500"
-                                            : "bg-rose-500"
-                                        }`}
-                                      />
-                                    )}
-                                  </DropdownMenu.Item>
-                                );
-                              })}
+                              {currentCategories.length === 0 ? (
+                                <div className="px-4 py-3 text-sm text-white/40 text-center">
+                                  No categories yet. Add some in Settings.
+                                </div>
+                              ) : (
+                                currentCategories.map((c) => {
+                                  const isSelected = category === c.name;
+                                  const catColor = getCategoryColor(c.name, c.color);
+                                  return (
+                                    <DropdownMenu.Item
+                                      key={c.id}
+                                      onSelect={() => setCategory(c.name)}
+                                      className={`relative flex cursor-pointer select-none items-center rounded-[16px] px-4 py-3 text-sm font-medium tracking-tight outline-none transition-all duration-200 focus:bg-white/10 data-[highlighted]:bg-white/10 ${
+                                        isSelected
+                                          ? "text-white/100"
+                                          : "text-white/70 hover:text-white"
+                                      }`}
+                                    >
+                                      <div className="relative z-10 flex items-center gap-3 w-full">
+                                        <div
+                                          className="h-2.5 w-2.5 shrink-0 rounded-full shadow-[0_0_10px_rgba(255,255,255,0.2)]"
+                                          style={{
+                                            background: catColor,
+                                            boxShadow: `0 0 10px ${catColor}40`
+                                          }}
+                                        />
+                                        <span>{c.name}</span>
+                                      </div>
+                                      {isSelected && (
+                                        <motion.div
+                                          layoutId="activeCategory"
+                                          className={`absolute inset-0 z-0 rounded-[16px] opacity-20 ${
+                                            modalType === "income"
+                                              ? "bg-emerald-500"
+                                              : "bg-rose-500"
+                                          }`}
+                                        />
+                                      )}
+                                    </DropdownMenu.Item>
+                                  );
+                                })
+                              )}
                             </div>
                           </motion.div>
                         </DropdownMenu.Content>

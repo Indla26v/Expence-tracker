@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { AppShell } from "@/components/app-shell";
+import { CategoryProvider } from "@/components/category-context";
 
 export default async function DashboardLayout({
   children,
@@ -10,6 +11,10 @@ export default async function DashboardLayout({
   const session = await auth();
   if (!session?.user?.email) redirect("/login");
 
-  return <AppShell>{children}</AppShell>;
+  return (
+    <AppShell>
+      <CategoryProvider>{children}</CategoryProvider>
+    </AppShell>
+  );
 }
 

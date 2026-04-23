@@ -2,9 +2,10 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { format } from "date-fns";
-import { CATEGORIES, CATEGORY_COLORS, type Category } from "@/lib/categories";
+import { CATEGORY_COLORS } from "@/lib/categories";
 import { formatIST, parseIST } from "@/lib/date";
 import { TransactionActions } from "@/components/transaction-actions";
+import { useCategoryContext } from "@/components/category-context";
 
 type Expense = {
   id: string;
@@ -29,7 +30,7 @@ export default function ExpensesPage() {
 
   const [amount, setAmount] = useState("");
   const [type, setType] = useState<Expense["type"]>("expense");
-  const [category, setCategory] = useState<(typeof CATEGORIES)[number]>("Lunch");
+  const [category, setCategory] = useState("");
   const [date, setDate] = useState(() => formatIST(new Date(), "yyyy-MM-dd'T'HH:mm"));
   const [note, setNote] = useState("");
   const [saving, setSaving] = useState(false);
@@ -37,10 +38,12 @@ export default function ExpensesPage() {
   const [editing, setEditing] = useState<Expense | null>(null);
   const [editAmount, setEditAmount] = useState("");
   const [editType, setEditType] = useState<Expense["type"]>("expense");
-  const [editCategory, setEditCategory] = useState<(typeof CATEGORIES)[number]>("Lunch");
+  const [editCategory, setEditCategory] = useState("");
   const [editDate, setEditDate] = useState(() => formatIST(new Date(), "yyyy-MM-dd'T'HH:mm"));
   const [editNote, setEditNote] = useState("");
   const [editSaving, setEditSaving] = useState(false);
+
+  const { expenseCategories, incomeCategories } = useCategoryContext();
 
   const queryString = useMemo(() => {
     const sp = new URLSearchParams();
@@ -116,7 +119,7 @@ export default function ExpensesPage() {
     setEditing(e);
     setEditAmount(String(e.amount));
     setEditType(e.type);
-    setEditCategory((CATEGORIES.includes(e.category as Category) ? (e.category as Category) : "Other") as Category);
+    setEditCategory(e.category);
     setEditDate(formatIST(new Date(e.date), "yyyy-MM-dd'T'HH:mm"));
     setEditNote(e.note ?? "");
   }
@@ -437,11 +440,7 @@ export default function ExpensesPage() {
                   onChange={(e) => {
                     const newType = e.target.value as Expense["type"];
                     setEditType(newType);
-                    if (newType === "income" && !["Salary", "Budget Allowance", "Others"].includes(editCategory)) {
-                      setEditCategory("Salary");
-                    } else if (newType === "expense" && ["Salary", "Budget Allowance", "Others"].includes(editCategory)) {
-                      setEditCategory("Lunch");
-                    }
+                    setEditCategory("");
                   }}
                   className="mt-1 w-full appearance-none rounded-[16px] bg-slate-900/40 bg-gradient-to-b from-blue-500/5 to-transparent px-3 py-2 text-sm tracking-tight text-white placeholder-white/30 backdrop-blur-[16px] shadow-[inset_0_1px_1px_rgba(255,255,255,0.05),0_8px_32px_-8px_rgba(0,0,0,0.5)] outline-none border border-white/10 transition-all hover:border-blue-400/40 focus:border-blue-400/60 focus:shadow-[0_0_24px_rgba(59,130,246,0.3)] focus:bg-slate-800/50 [&>option]:bg-slate-900 [&>option]:text-white"
                 >
@@ -455,16 +454,14 @@ export default function ExpensesPage() {
                 <select
                   value={editCategory}
                   onChange={(e) =>
-                    setEditCategory(e.target.value as (typeof CATEGORIES)[number])
+                    setEditCategory(e.target.value)
                   }
                   className="mt-1 w-full appearance-none rounded-[16px] bg-slate-900/40 bg-gradient-to-b from-blue-500/5 to-transparent px-3 py-2 text-sm tracking-tight text-white placeholder-white/30 backdrop-blur-[16px] shadow-[inset_0_1px_1px_rgba(255,255,255,0.05),0_8px_32px_-8px_rgba(0,0,0,0.5)] outline-none border border-white/10 transition-all hover:border-blue-400/40 focus:border-blue-400/60 focus:shadow-[0_0_24px_rgba(59,130,246,0.3)] focus:bg-slate-800/50 [&>option]:bg-slate-900 [&>option]:text-white"
                 >
-                  {(editType === "income" 
-                    ? (["Salary", "Budget Allowance", "Others"] as Category[]) 
-                    : CATEGORIES.filter(c => !["Salary", "Budget Allowance", "Others"].includes(c))
-                  ).map((c) => (
-                    <option key={c} value={c}>
-                      {c}
+                  <option value="" disabled>Select Category</option>
+                  {(editType === "income" ? incomeCategories : expenseCategories).map((c) => (
+                    <option key={c.id} value={c.name}>
+                      {c.name}
                     </option>
                   ))}
                 </select>

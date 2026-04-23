@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Wallet, Calendar, CalendarDays, IndianRupee, Database, Trash2, Download, Check, ChevronDown } from "lucide-react";
+import { Wallet, Calendar, CalendarDays, IndianRupee, Database, Trash2, Download, Check, ChevronDown, Plus, Tag, Loader2 } from "lucide-react";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { motion, AnimatePresence } from "framer-motion";
+import { useCategoryContext } from "@/components/category-context";
+import { getCategoryColor } from "@/lib/categories";
 
 type Budget = { id: string; month: number; year: number; amount: number };
 
@@ -37,6 +39,15 @@ export default function SettingsPage() {
   const [dbSuccess, setDbSuccess] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [dbExporting, setDbExporting] = useState(false);
+
+  // Category management state
+  const { expenseCategories, incomeCategories, addCategory, deleteCategory, loading: categoriesLoading } = useCategoryContext();
+  const [activeCategoryTab, setActiveCategoryTab] = useState<"expense" | "income">("expense");
+  const [newCategoryName, setNewCategoryName] = useState("");
+  const [catAdding, setCatAdding] = useState<"expense" | "income" | null>(null);
+  const [catDeleting, setCatDeleting] = useState<string | null>(null);
+  const [catError, setCatError] = useState<string | null>(null);
+  const [catSuccess, setCatSuccess] = useState<string | null>(null);
 
   const qs = useMemo(() => {
     const sp = new URLSearchParams();
@@ -390,6 +401,176 @@ export default function SettingsPage() {
               className="rounded-xl bg-gradient-to-r from-indigo-500 to-violet-600 px-6 py-2.5 text-sm font-semibold tracking-wide text-white shadow-lg shadow-indigo-500/25 hover:from-indigo-400 hover:to-violet-500 hover:shadow-indigo-400/40 focus:outline-none focus:ring-2 focus:ring-indigo-400/50 active:scale-95 disabled:opacity-50 disabled:pointer-events-none transition-all duration-300"
             >
               {saving ? "Saving..." : "Save Limit"}
+            </button>
+          </div>
+        </div>
+
+        {/* Category Management Section */}
+        <div className={`liquid-glass ambient-shadow p-8 rounded-[24px] border border-white/5 bg-slate-950/40 backdrop-blur-xl transition-all duration-300 hover:bg-slate-950/50 hover:shadow-2xl ${activeCategoryTab === "expense" ? "hover:shadow-rose-900/10" : "hover:shadow-emerald-900/10"}`}>
+          <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h2 className="text-lg font-semibold tracking-tight text-white/90 flex items-center gap-2">
+                <Tag className={`h-5 w-5 transition-colors ${activeCategoryTab === "expense" ? "text-rose-400" : "text-emerald-400"}`} />
+                Category Management
+              </h2>
+              <p className="mt-1 text-xs tracking-tight text-white/50">
+                Manage categories available when adding transactions.
+              </p>
+            </div>
+            
+            <div className="flex rounded-full bg-white/5 p-1 ring-1 ring-inset ring-white/10 shrink-0">
+              <button
+                onClick={() => {
+                  setActiveCategoryTab("expense");
+                  setCatError(null);
+                  setCatSuccess(null);
+                  setNewCategoryName("");
+                }}
+                className={`flex-1 rounded-full px-4 py-1.5 text-xs font-medium tracking-wide transition-all ${
+                  activeCategoryTab === "expense"
+                    ? "bg-rose-500/20 text-rose-300 shadow-sm ring-1 ring-inset ring-rose-500/30"
+                    : "text-white/40 hover:text-white/80 hover:bg-white/5"
+                }`}
+              >
+                Expense
+              </button>
+              <button
+                onClick={() => {
+                  setActiveCategoryTab("income");
+                  setCatError(null);
+                  setCatSuccess(null);
+                  setNewCategoryName("");
+                }}
+                className={`flex-1 rounded-full px-4 py-1.5 text-xs font-medium tracking-wide transition-all ${
+                  activeCategoryTab === "income"
+                    ? "bg-emerald-500/20 text-emerald-300 shadow-sm ring-1 ring-inset ring-emerald-500/30"
+                    : "text-white/40 hover:text-white/80 hover:bg-white/5"
+                }`}
+              >
+                Income
+              </button>
+            </div>
+          </div>
+
+          {catError && (
+            <div className="mb-4 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm font-medium text-rose-300 animate-in fade-in duration-300">
+              {catError}
+            </div>
+          )}
+          {catSuccess && (
+            <div className={`mb-4 rounded-lg border px-4 py-3 text-sm font-medium animate-in fade-in duration-300 ${activeCategoryTab === "expense" ? "border-rose-500/30 bg-rose-500/10 text-rose-300" : "border-emerald-500/30 bg-emerald-500/10 text-emerald-300"}`}>
+              {catSuccess}
+            </div>
+          )}
+
+          <div className="space-y-2 mb-5">
+            {categoriesLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="h-5 w-5 animate-spin text-white/40" />
+              </div>
+            ) : (activeCategoryTab === "expense" ? expenseCategories : incomeCategories).length === 0 ? (
+              <div className="py-6 text-center text-sm text-white/40">No {activeCategoryTab} categories yet.</div>
+            ) : (
+              <AnimatePresence mode="popLayout">
+                {(activeCategoryTab === "expense" ? expenseCategories : incomeCategories).map((cat) => (
+                  <motion.div
+                    key={cat.id}
+                    layout
+                    initial={{ opacity: 0, y: -8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    transition={{ duration: 0.2 }}
+                    className="group flex items-center justify-between rounded-xl border border-white/[0.06] bg-white/[0.03] px-4 py-3 transition-all hover:bg-white/[0.06] hover:border-white/10"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div
+                        className="h-3 w-3 shrink-0 rounded-full shadow-[0_0_8px_rgba(255,255,255,0.15)]"
+                        style={{ background: getCategoryColor(cat.name, cat.color) }}
+                      />
+                      <span className="text-sm font-medium tracking-tight text-white/80">{cat.name}</span>
+                    </div>
+                    <button
+                      disabled={catDeleting === cat.id}
+                      onClick={async () => {
+                        setCatDeleting(cat.id);
+                        setCatError(null);
+                        setCatSuccess(null);
+                        const result = await deleteCategory(cat.id);
+                        if (!result.ok) {
+                          setCatError(result.error ?? "Failed to delete");
+                        } else {
+                          setCatSuccess(`"${cat.name}" deleted.`);
+                          setTimeout(() => setCatSuccess(null), 3000);
+                        }
+                        setCatDeleting(null);
+                      }}
+                      className="rounded-lg p-2 text-white/30 transition-all hover:bg-red-500/15 hover:text-rose-400 disabled:opacity-40 disabled:pointer-events-none opacity-0 group-hover:opacity-100 focus:opacity-100"
+                      title={`Delete ${cat.name}`}
+                    >
+                      {catDeleting === cat.id ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Trash2 className="h-4 w-4" />
+                      )}
+                    </button>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            )}
+          </div>
+
+          <div className="flex gap-3">
+            <input
+              value={newCategoryName}
+              onChange={(e) => setNewCategoryName(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && newCategoryName.trim()) {
+                  e.preventDefault();
+                  void (async () => {
+                    const type = activeCategoryTab;
+                    setCatAdding(type);
+                    setCatError(null);
+                    setCatSuccess(null);
+                    const result = await addCategory(newCategoryName.trim(), type);
+                    if (!result.ok) {
+                      setCatError(result.error ?? "Failed to add");
+                    } else {
+                      setNewCategoryName("");
+                      setCatSuccess(`"${newCategoryName.trim()}" added.`);
+                      setTimeout(() => setCatSuccess(null), 3000);
+                    }
+                    setCatAdding(null);
+                  })();
+                }
+              }}
+              placeholder={`New ${activeCategoryTab} category`}
+              className={`flex-1 rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm font-medium tracking-tight text-white placeholder-white/30 outline-none ring-1 ring-transparent transition-all hover:bg-black/30 focus:bg-black/40 ${activeCategoryTab === "expense" ? "focus:border-rose-500/50 focus:ring-rose-500/20 focus:shadow-[0_0_20px_rgba(244,63,94,0.15)]" : "focus:border-emerald-500/50 focus:ring-emerald-500/20 focus:shadow-[0_0_20px_rgba(16,185,129,0.15)]"}`}
+            />
+            <button
+              disabled={!newCategoryName.trim() || catAdding === activeCategoryTab}
+              onClick={async () => {
+                const type = activeCategoryTab;
+                setCatAdding(type);
+                setCatError(null);
+                setCatSuccess(null);
+                const result = await addCategory(newCategoryName.trim(), type);
+                if (!result.ok) {
+                  setCatError(result.error ?? "Failed to add");
+                } else {
+                  setNewCategoryName("");
+                  setCatSuccess(`"${newCategoryName.trim()}" added.`);
+                  setTimeout(() => setCatSuccess(null), 3000);
+                }
+                setCatAdding(null);
+              }}
+              className={`flex items-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold tracking-wide text-white shadow-lg focus:outline-none focus:ring-2 active:scale-95 disabled:opacity-50 disabled:pointer-events-none transition-all duration-300 ${activeCategoryTab === "expense" ? "bg-gradient-to-r from-rose-500 to-pink-600 shadow-rose-500/20 hover:from-rose-400 hover:to-pink-500 hover:shadow-rose-400/30 focus:ring-rose-400/50" : "bg-gradient-to-r from-emerald-500 to-teal-600 shadow-emerald-500/20 hover:from-emerald-400 hover:to-teal-500 hover:shadow-emerald-400/30 focus:ring-emerald-400/50"}`}
+            >
+              {catAdding === activeCategoryTab ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Plus className="h-4 w-4" />
+              )}
+              Add
             </button>
           </div>
         </div>

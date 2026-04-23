@@ -1,4 +1,5 @@
-export const CATEGORIES = [
+// Default categories used for initial seeding
+export const DEFAULT_EXPENSE_CATEGORIES = [
   "Breakfast",
   "Lunch",
   "Dinner",
@@ -9,15 +10,25 @@ export const CATEGORIES = [
   "Bills",
   "Health",
   "Entertainment",
+  "Other",
+] as const;
+
+export const DEFAULT_INCOME_CATEGORIES = [
   "Salary",
   "Budget Allowance",
   "Others",
-  "Other",
+] as const;
+
+// Combined list for backward compatibility
+export const CATEGORIES = [
+  ...DEFAULT_EXPENSE_CATEGORIES,
+  ...DEFAULT_INCOME_CATEGORIES,
 ] as const;
 
 export type Category = (typeof CATEGORIES)[number];
 
-export const CATEGORY_COLORS: Record<Category, string> = {
+// Static color map — used as fallback for known categories
+export const CATEGORY_COLORS: Record<string, string> = {
   Breakfast: "#22c55e",
   Lunch: "#84cc16",
   Dinner: "#10b981",
@@ -34,3 +45,19 @@ export const CATEGORY_COLORS: Record<Category, string> = {
   Other: "#94a3b8",
 };
 
+// Dynamic category type from the database
+export type DynamicCategory = {
+  id: string;
+  name: string;
+  type: "expense" | "income";
+  color: string;
+};
+
+/**
+ * Resolve a category's display color.
+ * Priority: custom DB color → static fallback map → default gray
+ */
+export function getCategoryColor(name: string, customColor?: string): string {
+  if (customColor && customColor !== "#94a3b8") return customColor;
+  return CATEGORY_COLORS[name] ?? customColor ?? "#94a3b8";
+}
