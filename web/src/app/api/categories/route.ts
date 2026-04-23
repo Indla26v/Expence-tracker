@@ -44,7 +44,7 @@ export async function GET(req: NextRequest) {
   await seedDefaultsIfEmpty();
 
   const categories = await prisma.category.findMany({
-    orderBy: { createdAt: "asc" },
+    orderBy: [{ type: "asc" }, { sortOrder: "asc" }, { createdAt: "asc" }],
   });
 
   const expense = categories.filter((c) => c.type === "expense");
@@ -66,11 +66,20 @@ export async function POST(req: NextRequest) {
   const { name, type } = parsed.data;
 
   try {
+    // Get the highest sortOrder to put new categories at the bottom
+    const maxSortOrderResult = await prisma.category.aggregate({
+      where: { type },
+      _max: { sortOrder: true },
+    });
+    
+    const nextSortOrder = (maxSortOrderResult._max.sortOrder ?? 0) + 1;
+
     const category = await prisma.category.create({
       data: {
         name,
         type,
         color: CATEGORY_COLORS[name] ?? "#94a3b8",
+        sortOrder: nextSortOrder,
       },
     });
 
@@ -129,4 +138,42 @@ export async function DELETE(req: NextRequest) {
   await prisma.category.delete({ where: { id } });
 
   return NextResponse.json({ deleted: true });
+}
+
+const updateSortOrderSchema = z.array(
+  z.object({
+    id: z.string(),
+    sortOrder: z.number().int().min(0),
+  })
+);
+
+export async function PUT(req: NextRequest) {
+  const authResult = await requireAuth(req);
+  if (authResult instanceof NextResponse) return authResult;
+
+  const json = await req.json().catch(() => null);
+  const parsed = updateSortOrderSchema.safeParse(json);
+
+  if (!parsed.success) {
+    return NextResponse.json({ error: "Invalid payload format" }, { status: 400 });
+  }
+
+  const updates = parsed.data;
+
+  try {
+    // Perform bulk update of sort orders using completely separate queries inside a transaction
+    await prisma.$transaction(
+      updates.map((update) =>
+        prisma.category.update({
+          where: { id: update.id },
+          data: { sortOrder: update.sortOrder },
+        })
+      )
+    );
+
+    return NextResponse.json({ updated: true });
+  } catch (error) {
+    console.error("Error updating category sorts: ", error);
+    return NextResponse.json({ error: "Could not update category sort orders." }, { status: 500 });
+  }
 }

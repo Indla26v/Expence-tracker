@@ -42,11 +42,11 @@ model Budget {
 model Category {
   id        String   @id @default(cuid())
   name      String
-  type      String   // "expense" | "income"
+  type      String // "expense" | "income"
   color     String   @default("#94a3b8")
+  sortOrder Int      @default(0)
   createdAt DateTime @default(now())
 
   @@unique([name, type])
-  @@index([type])
+  @@index([type, sortOrder])
 }
-

@@ -18,6 +18,7 @@ type CategoryContextValue = {
     type: "expense" | "income"
   ) => Promise<{ ok: boolean; error?: string }>;
   deleteCategory: (id: string) => Promise<{ ok: boolean; error?: string }>;
+  updateCategoryOrder: (updates: { id: string; sortOrder: number }[]) => Promise<{ ok: boolean; error?: string }>;
   refreshCategories: () => Promise<void>;
 };
 
@@ -107,6 +108,46 @@ export function CategoryProvider({ children }: { children: React.ReactNode }) {
     [fetchCategories]
   );
 
+  const updateCategoryOrder = useCallback(
+    async (updates: { id: string; sortOrder: number }[]): Promise<{ ok: boolean; error?: string }> => {
+      // Optimistically update state so it feels instant
+      const getOptimisticList = (list: DynamicCategory[]) => {
+        const cloned = [...list];
+        for (const update of updates) {
+          const idx = cloned.findIndex((c) => c.id === update.id);
+          if (idx !== -1) {
+            cloned[idx] = { ...cloned[idx], sortOrder: update.sortOrder } as any; 
+          }
+        }
+        return cloned.sort((a: any, b: any) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
+      };
+
+      setExpenseCategories((prev) => getOptimisticList(prev));
+      setIncomeCategories((prev) => getOptimisticList(prev));
+
+      try {
+        const res = await fetch("/api/categories", {
+          method: "PUT",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify(updates),
+        });
+
+        if (!res.ok) {
+          const data = (await res.json().catch(() => null)) as { error?: string } | null;
+          // Revert optimistic update by refetching on failure
+          await fetchCategories();
+          return { ok: false, error: data?.error ?? "Failed to update category order" };
+        }
+
+        return { ok: true };
+      } catch {
+        await fetchCategories();
+        return { ok: false, error: "An error occurred" };
+      }
+    },
+    [fetchCategories]
+  );
+
   return (
     <CategoryContext.Provider
       value={{
@@ -115,6 +156,7 @@ export function CategoryProvider({ children }: { children: React.ReactNode }) {
         loading,
         addCategory,
         deleteCategory,
+        updateCategoryOrder,
         refreshCategories: fetchCategories,
       }}
     >

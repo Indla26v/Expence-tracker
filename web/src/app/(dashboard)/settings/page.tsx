@@ -1,11 +1,28 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Wallet, Calendar, CalendarDays, IndianRupee, Database, Trash2, Download, Check, ChevronDown, Plus, Tag, Loader2 } from "lucide-react";
+import { Wallet, Calendar, CalendarDays, IndianRupee, Database, Trash2, Download, Check, ChevronDown, Plus, Tag, Loader2, GripVertical } from "lucide-react";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { motion, AnimatePresence } from "framer-motion";
 import { useCategoryContext } from "@/components/category-context";
 import { getCategoryColor } from "@/lib/categories";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  useSortable,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 type Budget = { id: string; month: number; year: number; amount: number };
 
@@ -13,6 +30,74 @@ const MONTHS = [
   "January", "February", "March", "April", "May", "June",
   "July", "August", "September", "October", "November", "December"
 ];
+
+function SortableCategoryItem({ cat, catDeleting, setCatDeleting, setCatError, setCatSuccess, deleteCategory }: any) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: cat.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    ...(isDragging ? { zIndex: 100, position: 'relative' as const, boxShadow: '0 0 0 1px rgba(255,255,255,0.1), 0 8px 16px rgba(0,0,0,0.5)' } : {}),
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`group flex items-center justify-between rounded-xl border px-3 py-2.5 transition-colors ${
+        isDragging ? 'border-cyan-500/30 bg-cyan-950/20' : 'border-white/[0.06] bg-white/[0.03] hover:bg-white/[0.06] hover:border-white/10'
+      }`}
+    >
+      <div className="flex items-center gap-3 w-full">
+        <button
+          {...listeners}
+          {...attributes}
+          className="cursor-grab active:cursor-grabbing p-1.5 -ml-1.5 text-white/20 hover:text-white/60 transition-colors"
+          title="Drag to reorder"
+        >
+          <GripVertical className="h-4 w-4" />
+        </button>
+        <div
+          className="h-3 w-3 shrink-0 rounded-full shadow-[0_0_8px_rgba(255,255,255,0.15)]"
+          style={{ background: getCategoryColor(cat.name, cat.color) }}
+        />
+        <span className="text-sm font-medium tracking-tight text-white/80">{cat.name}</span>
+      </div>
+      
+      <button
+        disabled={catDeleting === cat.id}
+        onClick={async () => {
+          setCatDeleting(cat.id);
+          setCatError(null);
+          setCatSuccess(null);
+          const result = await deleteCategory(cat.id);
+          if (!result.ok) {
+            setCatError(result.error ?? "Failed to delete");
+          } else {
+            setCatSuccess(`"${cat.name}" deleted.`);
+            setTimeout(() => setCatSuccess(null), 3000);
+          }
+          setCatDeleting(null);
+        }}
+        className="rounded-lg p-2 text-white/30 transition-all hover:bg-red-500/15 hover:text-rose-400 disabled:opacity-40 disabled:pointer-events-none opacity-0 group-hover:opacity-100 focus:opacity-100 shrink-0"
+        title={`Delete ${cat.name}`}
+      >
+        {catDeleting === cat.id ? (
+          <Loader2 className="h-4 w-4 animate-spin" />
+        ) : (
+          <Trash2 className="h-4 w-4" />
+        )}
+      </button>
+    </div>
+  );
+}
 
 export default function SettingsPage() {
   const now = new Date();
@@ -41,13 +126,46 @@ export default function SettingsPage() {
   const [dbExporting, setDbExporting] = useState(false);
 
   // Category management state
-  const { expenseCategories, incomeCategories, addCategory, deleteCategory, loading: categoriesLoading } = useCategoryContext();
+  const { expenseCategories, incomeCategories, addCategory, deleteCategory, updateCategoryOrder, loading: categoriesLoading } = useCategoryContext();
   const [activeCategoryTab, setActiveCategoryTab] = useState<"expense" | "income">("expense");
   const [newCategoryName, setNewCategoryName] = useState("");
   const [catAdding, setCatAdding] = useState<"expense" | "income" | null>(null);
   const [catDeleting, setCatDeleting] = useState<string | null>(null);
   const [catError, setCatError] = useState<string | null>(null);
   const [catSuccess, setCatSuccess] = useState<string | null>(null);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 5,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      const items = activeCategoryTab === "expense" ? expenseCategories : incomeCategories;
+      const oldIndex = items.findIndex((i) => i.id === active.id);
+      const newIndex = items.findIndex((i) => i.id === over.id);
+
+      const reorderedItems = arrayMove(items, oldIndex, newIndex);
+      
+      const updates = reorderedItems.map((item, index) => ({
+        id: item.id,
+        sortOrder: index,
+      }));
+
+      const res = await updateCategoryOrder(updates);
+      if (!res.ok) {
+        setCatError(res.error || "Failed to reorder categories");
+      }
+    }
+  };
 
   const qs = useMemo(() => {
     const sp = new URLSearchParams();
@@ -471,51 +589,30 @@ export default function SettingsPage() {
             ) : (activeCategoryTab === "expense" ? expenseCategories : incomeCategories).length === 0 ? (
               <div className="py-6 text-center text-sm text-white/40">No {activeCategoryTab} categories yet.</div>
             ) : (
-              <AnimatePresence mode="popLayout">
-                {(activeCategoryTab === "expense" ? expenseCategories : incomeCategories).map((cat) => (
-                  <motion.div
-                    key={cat.id}
-                    layout
-                    initial={{ opacity: 0, y: -8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                    transition={{ duration: 0.2 }}
-                    className="group flex items-center justify-between rounded-xl border border-white/[0.06] bg-white/[0.03] px-4 py-3 transition-all hover:bg-white/[0.06] hover:border-white/10"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div
-                        className="h-3 w-3 shrink-0 rounded-full shadow-[0_0_8px_rgba(255,255,255,0.15)]"
-                        style={{ background: getCategoryColor(cat.name, cat.color) }}
+              <DndContext 
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={handleDragEnd}
+              >
+                <SortableContext 
+                  items={(activeCategoryTab === "expense" ? expenseCategories : incomeCategories).map(c => c.id)}
+                  strategy={verticalListSortingStrategy}
+                >
+                  <div className="grid gap-2">
+                    {(activeCategoryTab === "expense" ? expenseCategories : incomeCategories).map((cat) => (
+                      <SortableCategoryItem 
+                        key={cat.id} 
+                        cat={cat} 
+                        catDeleting={catDeleting}
+                        setCatDeleting={setCatDeleting}
+                        setCatError={setCatError}
+                        setCatSuccess={setCatSuccess}
+                        deleteCategory={deleteCategory}
                       />
-                      <span className="text-sm font-medium tracking-tight text-white/80">{cat.name}</span>
-                    </div>
-                    <button
-                      disabled={catDeleting === cat.id}
-                      onClick={async () => {
-                        setCatDeleting(cat.id);
-                        setCatError(null);
-                        setCatSuccess(null);
-                        const result = await deleteCategory(cat.id);
-                        if (!result.ok) {
-                          setCatError(result.error ?? "Failed to delete");
-                        } else {
-                          setCatSuccess(`"${cat.name}" deleted.`);
-                          setTimeout(() => setCatSuccess(null), 3000);
-                        }
-                        setCatDeleting(null);
-                      }}
-                      className="rounded-lg p-2 text-white/30 transition-all hover:bg-red-500/15 hover:text-rose-400 disabled:opacity-40 disabled:pointer-events-none opacity-0 group-hover:opacity-100 focus:opacity-100"
-                      title={`Delete ${cat.name}`}
-                    >
-                      {catDeleting === cat.id ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <Trash2 className="h-4 w-4" />
-                      )}
-                    </button>
-                  </motion.div>
-                ))}
-              </AnimatePresence>
+                    ))}
+                  </div>
+                </SortableContext>
+              </DndContext>
             )}
           </div>
 
